@@ -1,3 +1,3 @@
-:HL["/landing_viicasa_coming-soon/_next/static/chunks/0pap8wu8hfn0o.css","style"]
+:HL["/landing_viicasa_coming-soon/_next/static/chunks/3tw7vxnhdnvyt.css","style"]
 :HL["/landing_viicasa_coming-soon/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"reservations","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"ixQux7sG7b2cpWxTnaqoM"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"reservations","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"He7Gxn9B7v0bajnA7YJM0"}

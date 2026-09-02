@@ -1,2 +1,2 @@
-:HL["/landing_viicasa_coming-soon/_next/static/chunks/0pap8wu8hfn0o.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"ixQux7sG7b2cpWxTnaqoM"}
+:HL["/landing_viicasa_coming-soon/_next/static/chunks/3tw7vxnhdnvyt.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"He7Gxn9B7v0bajnA7YJM0"}
