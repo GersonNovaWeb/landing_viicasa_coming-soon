@@ -1,69 +1,125 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { LayoutTemplate, Monitor, Smartphone, Tablet, ChevronDown, Check } from "lucide-react";
+
+const DESIGNS = [
+  { id: "viicasa_architectural_precision", name: "Architectural Precision" },
+  { id: "viicasa_editorial_minimalism", name: "Editorial Minimalism" },
+  { id: "viicasa_immersive_luxury", name: "Immersive Luxury" },
+  { id: "viicasa_immersive_luxury_visuals", name: "Immersive Luxury Visuals" },
+  { id: "viicasa_something_exceptional_is_coming", name: "Exceptional is Coming" },
+  { id: "viicasa_waitlist_landing_variations", name: "Waitlist Variations" },
+];
+
+const DEVICE_WIDTHS = {
+  desktop: "100%",
+  tablet: "768px",
+  mobile: "375px",
+};
+
+export default function DesignViewer() {
+  const [activeDesign, setActiveDesign] = useState(DESIGNS[0].id);
+  const [deviceSize, setDeviceSize] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col h-screen bg-neutral-900 overflow-hidden font-sans">
+      {/* Top Floating Menu bar */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 p-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+        
+        {/* Design Selector */}
+        <div className="relative">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-xl transition-colors"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <LayoutTemplate size={16} />
+            <span className="max-w-[150px] truncate">
+              {DESIGNS.find((d) => d.id === activeDesign)?.name}
+            </span>
+            <ChevronDown size={14} className="text-neutral-400" />
+          </button>
+
+          {isMenuOpen && (
+            <>
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={() => setIsMenuOpen(false)} 
+              />
+              <div className="absolute top-full mt-2 left-0 w-64 bg-neutral-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+                <div className="p-2 flex flex-col gap-1 max-h-[300px] overflow-y-auto">
+                  {DESIGNS.map((design) => (
+                    <button
+                      key={design.id}
+                      onClick={() => {
+                        setActiveDesign(design.id);
+                        setIsMenuOpen(false);
+                      }}
+                      className={`flex items-center justify-between px-3 py-2 text-sm text-left rounded-lg transition-colors ${
+                        activeDesign === design.id
+                          ? "bg-white/10 text-white"
+                          : "text-neutral-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      <span className="truncate pr-2">{design.name}</span>
+                      {activeDesign === design.id && <Check size={14} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
-      </main>
+
+        <div className="w-[1px] h-6 bg-white/10 mx-2" />
+
+        {/* Device Toggles */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setDeviceSize("desktop")}
+            className={`p-2 rounded-xl transition-colors ${
+              deviceSize === "desktop" ? "bg-white/10 text-white" : "text-neutral-400 hover:bg-white/5 hover:text-white"
+            }`}
+            title="Desktop view"
+          >
+            <Monitor size={16} />
+          </button>
+          <button
+            onClick={() => setDeviceSize("tablet")}
+            className={`p-2 rounded-xl transition-colors ${
+              deviceSize === "tablet" ? "bg-white/10 text-white" : "text-neutral-400 hover:bg-white/5 hover:text-white"
+            }`}
+            title="Tablet view"
+          >
+            <Tablet size={16} />
+          </button>
+          <button
+            onClick={() => setDeviceSize("mobile")}
+            className={`p-2 rounded-xl transition-colors ${
+              deviceSize === "mobile" ? "bg-white/10 text-white" : "text-neutral-400 hover:bg-white/5 hover:text-white"
+            }`}
+            title="Mobile view"
+          >
+            <Smartphone size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Frame Container */}
+      <div className="flex-1 w-full bg-neutral-950 flex items-center justify-center pt-24 pb-8 px-4">
+        <div
+          className={`h-full relative transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-white`}
+          style={{ width: DEVICE_WIDTHS[deviceSize] }}
+        >
+          <iframe
+            key={activeDesign}
+            src={`${process.env.NODE_ENV === 'production' ? '/landing_viicasa_coming-soon' : ''}/designs/${activeDesign}/code.html`}
+            className="w-full h-full border-none"
+            title={`Preview of ${activeDesign}`}
+          />
+        </div>
+      </div>
     </div>
   );
 }

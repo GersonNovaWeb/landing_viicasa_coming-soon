@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VIICASA - Coming Soon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#ffdea5",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1b1c1c",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "on-tertiary-container": "#858480",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#1c1b1b",
+                        "on-secondary-fixed": "#261900",
+                        "inverse-primary": "#c8c6c5",
+                        "on-background": "#1b1c1c",
+                        "tertiary-fixed": "#e5e2dd",
+                        "surface-container-high": "#e9e8e7",
+                        "on-tertiary-fixed-variant": "#474743",
+                        "surface-variant": "#e4e2e2",
+                        "tertiary-container": "#1c1c19",
+                        "tertiary": "#000000",
+                        "primary": "#000000",
+                        "background": "#fbf9f9",
+                        "surface-container-low": "#f5f3f3",
+                        "on-primary-container": "#858383",
+                        "outline": "#747878",
+                        "surface-container-highest": "#e4e2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#5f5e5e",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#303031",
+                        "secondary-container": "#fed488",
+                        "surface-dim": "#dbdad9",
+                        "surface-bright": "#fbf9f9",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed": "#e5e2e1",
+                        "primary-container": "#1c1b1b",
+                        "secondary": "#775a19",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed-dim": "#c9c6c2",
+                        "on-surface-variant": "#444748",
+                        "surface": "#fbf9f9",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container": "#efeded",
+                        "on-tertiary-fixed": "#1c1c19",
+                        "outline-variant": "#c4c7c7",
+                        "on-primary-fixed-variant": "#474746",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "section-gap": "120px",
+                        "unit": "8px",
+                        "container-max": "1280px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Bodoni Moda"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "headline-md": ["Bodoni Moda"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.3", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #fbf9f9; color: #1b1c1c; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .border-bottom-focus:focus-within { border-bottom-color: #000; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden selection:bg-surface-variant selection:text-primary">
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl border-b border-outline-variant/30 transition-all duration-700 ease-in-out">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<img alt="VIICASA Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A"/>
+</div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="font-body-md text-body-md uppercase tracking-widest text-on-surface-variant/60 hover:text-primary transition-colors duration-500" href="#stay">Stay</a>
+<a class="font-body-md text-body-md uppercase tracking-widest text-on-surface-variant/60 hover:text-primary transition-colors duration-500" href="#shop">Shop</a>
+<a class="font-body-md text-body-md uppercase tracking-widest text-on-surface-variant/60 hover:text-primary transition-colors duration-500" href="#live">Live</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="hidden md:inline-block font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest border border-outline-variant px-3 py-1 rounded-full">Coming Soon</span>
+<a class="bg-primary text-on-primary font-body-md text-body-md px-6 py-2 hover:bg-tertiary transition-colors duration-300" href="#waitlist">Join Waitlist</a>
+</div>
+</div>
+</header>
+<main class="pt-[100px]">
+<!-- Hero Section -->
+<section class="min-h-[80vh] flex items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto py-section-gap">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<div class="lg:col-span-5 reveal active space-y-8 z-10 relative">
+<h1 class="font-display-lg text-display-lg text-primary">Elevated Living, <br/>Coming Soon.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                        VIICASA is creating a curated hospitality and lifestyle experience designed around exceptional spaces, thoughtful details, and elevated living.
+                    </p>
+<a class="inline-block border border-primary px-8 py-4 font-body-md text-body-md uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors duration-500" href="#waitlist">
+                        Join the Waitlist
+                    </a>
+</div>
+<div class="lg:col-span-7 mt-12 lg:mt-0 reveal active relative">
+<div class="aspect-[4/5] lg:aspect-[16/10] overflow-hidden bg-surface-container-high relative">
+<img class="w-full h-full object-cover" data-alt="A luxurious, minimalist architectural space with soft, natural lighting, featuring warm white plastered walls, a large arched window looking out to a serene ocean view, light wood slatted room dividers, and a simple ceramic vase with dried branches on a marble table in a light-mode contemporary setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl6UZdoGlbQ3z4yghhcztd35spz6dA5rNo_Cem9u1IAgaMDHBPRHQqtzjwxMEqCqRxszTGpKd6qjxkWyC822IoL1IsuGWkaG_W4kgQS3u4ArAVhjCR1BwgVuSUWCrZzz4TAku4PkBpxNegUFszm1Cs9yNf0vY86AsLG6nY06RIgY76Az-YS5uIrqpfVQWtteQIKAdbBihRKbBDVWXY4DrXV1PKPDvC2_rc7GrPFQGmSzFl-7V0c9Ut"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Manifesto -->
+<section class="bg-surface-container-low py-section-gap px-margin-mobile md:px-margin-desktop text-center">
+<div class="max-w-4xl mx-auto reveal">
+<span class="material-symbols-outlined text-4xl text-outline mb-6">spa</span>
+<h2 class="font-headline-md md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-8 leading-tight">
+                    "VIICASA is more than a destination. It is a curated approach to how we stay, discover, and experience exceptional spaces."
+                </h2>
+<div class="w-16 h-[1px] bg-outline-variant mx-auto"></div>
+</div>
+</section>
+<!-- Preview Sections -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-section-gap" id="preview">
+<!-- STAY -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center reveal" id="stay">
+<div class="order-2 md:order-1 space-y-6 md:pr-12">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">01 / Stay</span>
+<h3 class="font-headline-md text-headline-md text-primary">Curated Sanctuaries</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Discover private villas and boutique residences where every architectural detail is considered to foster deep relaxation and absolute privacy.
+                    </p>
+</div>
+<div class="order-1 md:order-2 aspect-[4/5] overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="An interior view of a minimal luxury bedroom, featuring a low-profile platform bed dressed in organic linen, set against a smooth warm stone wall, bathed in morning sunlight creating sharp shadows, embodying high-end tranquility in a light-mode palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCordNOP3ABfz7wpyXKEHNVAlJhnmJLxbMWVQ5LQUncBizn_qbRRM9fyCzC1Yt5vQjyRFtaDGaa01ZekzHYoGT1qAe0Ug-ejle2q0B5Y0OjVzJq7n6hLNHt60D7m-cvW860fSn84DvWWXykGLk8QAtEev1yF9pufC3kCDNoc1U-Q6D0LsRFBKkhwJqLh_81felt-5uea-upBIIdZg83QKcTKyY-SuZEgFVjfgUghTT0dEv38yRXZNAk"/>
+</div>
+</div>
+<!-- SHOP -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center reveal" id="shop">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="A curated collection of artisanal ceramics and woven textiles arranged asymmetrically on a sleek stone plinth, dramatically lit with soft studio lighting against a pale taupe background, reflecting a refined editorial luxury style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8UMmAnKdGBGOnowcbl9El-ABOvNWD-psOPUoVUlkK6YDyCEeR5qLniDoKKmvQ_i_J8TXabFrjbnaDqu_cnA7jKkUhswXrE4oOXfd-gH1JPxm_RVxpCrlg96BolPuMaz6qXKkrpvCTwTVnis6mDEHDreZTfuF9m2QlQwGC5eqnIRm5ArASVZjqe38Iy3GG0PUmg1h0OP0CIIi8QRzNYB9A9uh3Tvt-I96hMkAIOwjJH_AFBReP6wdc"/>
+</div>
+<div class="space-y-6 md:pl-12">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">02 / Shop</span>
+<h3 class="font-headline-md text-headline-md text-primary">The Object Gallery</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        A definitive collection of homewares, art, and lifestyle objects, thoughtfully sourced to bring the VIICASA aesthetic into your own space.
+                    </p>
+</div>
+</div>
+<!-- LIVE -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center reveal" id="live">
+<div class="order-2 md:order-1 space-y-6 md:pr-12">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">03 / Live</span>
+<h3 class="font-headline-md text-headline-md text-primary">Architectural Development</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Exclusive real estate opportunities. We conceptualize, build, and manage exceptional contemporary properties for discerning individuals.
+                    </p>
+</div>
+<div class="order-1 md:order-2 aspect-[4/5] overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="Exterior shot of a contemporary villa with clean, rectilinear concrete forms, integrated smoothly into a rugged coastal landscape, highlighting minimal luxury architecture with warm sunlight reflecting off a negative edge pool in a bright, light-mode setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNiMzbl-5EicZeoPmvLhyKqNhfeX355niAL1TWyag-wHISsK_-6EOvZ4i2H6GOt3Pah6mUE9HVjOnX2RA3QlRfQ2_Ir0OFbkjjU47mUhskqrKb8Xpv1_YsCRY3VObspSzoCwINGYtbrTyS_lWc6Y8-joRfQEaT0H-7_DwxhDDWim8H6e2-W4mgkMWg3bECCb4eWysPIBgocYHkejYsf11rBih29xw6pm3Zrf-K63ujL7YEgmN3EW1h"/>
+</div>
+</div>
+</section>
+<!-- Waitlist Form -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-highest relative overflow-hidden" id="waitlist">
+<div class="max-w-2xl mx-auto relative z-10 reveal bg-surface-container-lowest p-8 md:p-12 border border-outline-variant/20 shadow-sm">
+<div class="text-center mb-10">
+<h2 class="font-headline-md text-headline-md text-primary mb-4">Request Access</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Join our private launch list for early access, updates, and exclusive announcements.
+                    </p>
+</div>
+<form class="space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="relative border-b border-outline-variant pb-2 border-bottom-focus transition-colors">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1" for="fname">First Name</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="fname" placeholder="Enter first name" type="text"/>
+</div>
+<div class="relative border-b border-outline-variant pb-2 border-bottom-focus transition-colors">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1" for="lname">Last Name</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="lname" placeholder="Enter last name" type="text"/>
+</div>
+</div>
+<div class="relative border-b border-outline-variant pb-2 border-bottom-focus transition-colors">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1" for="email">Email Address</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="email" placeholder="Enter email address" type="email"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-4">Area of Interest</label>
+<div class="flex flex-wrap gap-4">
+<label class="cursor-pointer">
+<input class="peer sr-only" type="checkbox"/>
+<span class="px-4 py-2 border border-outline-variant rounded-none font-body-md text-sm text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors">Stay</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" type="checkbox"/>
+<span class="px-4 py-2 border border-outline-variant rounded-none font-body-md text-sm text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors">Shop</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" type="checkbox"/>
+<span class="px-4 py-2 border border-outline-variant rounded-none font-body-md text-sm text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors">Live</span>
+</label>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-body-md text-body-md py-4 hover:bg-tertiary transition-colors duration-300" type="button">
+                        Submit Inquiry
+                    </button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-tertiary-container w-full py-section-gap border-t border-outline-variant/20">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto gap-8">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-headline-md text-primary dark:text-tertiary-fixed tracking-tighter">VIICASA</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant/80 text-center md:text-left">
+                © 2026 VIICASA. ARCHITECTURAL INTEGRITY.
+            </div>
+<div class="flex gap-6">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors duration-300 opacity-80 hover:opacity-100" href="#">Privacy</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors duration-300 opacity-80 hover:opacity-100" href="#">Terms</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors duration-300 opacity-80 hover:opacity-100" href="#">Inquiries</a>
+</div>
+</div>
+</footer>
+<script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const reveals = document.querySelectorAll(".reveal");
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                reveals.forEach((reveal) => {
+                    const revealTop = reveal.getBoundingClientRect().top;
+                    if (revealTop < windowHeight - 100) {
+                        reveal.classList.add("active");
+                    }
+                });
+            };
+            window.addEventListener("scroll", revealOnScroll);
+            revealOnScroll(); // Trigger on load
+        });
+    </script>
+</body></html>
