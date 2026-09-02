@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VIICASA - Something Extraordinary Is Coming</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#1c1b1b",
+                        "surface-bright": "#fbf9f9",
+                        "surface-dim": "#dbdad9",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f5f3f3",
+                        "primary-fixed": "#e5e2e1",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-tint": "#5f5e5e",
+                        "tertiary-container": "#1c1c19",
+                        "outline": "#747878",
+                        "on-error": "#ffffff",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-fixed": "#1c1c19",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "secondary-container": "#fed488",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f2f0f0",
+                        "surface-container": "#efeded",
+                        "inverse-surface": "#303031",
+                        "primary": "#000000",
+                        "on-primary-container": "#858383",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed": "#e5e2dd",
+                        "on-background": "#1b1c1c",
+                        "outline-variant": "#c4c7c7",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#775a19",
+                        "tertiary-fixed-dim": "#c9c6c2",
+                        "on-primary-fixed-variant": "#474746",
+                        "on-tertiary-container": "#858480",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed": "#261900",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#444748",
+                        "secondary-fixed": "#ffdea5",
+                        "on-tertiary-fixed-variant": "#474743",
+                        "on-primary-fixed": "#1c1b1b",
+                        "inverse-primary": "#c8c6c5",
+                        "background": "#fbf9f9",
+                        "surface-container-highest": "#e4e2e2",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fbf9f9",
+                        "surface-variant": "#e4e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "section-gap": "120px",
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "headline-md": ["Bodoni Moda"],
+                        "display-lg": ["Bodoni Moda"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Bodoni Moda"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.3", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F5F2ED;
+            color: #1b1c1c;
+        }
+        
+        /* Smooth fade-in for elements */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Concierge form input styling */
+        .concierge-input {
+            border: none;
+            border-bottom: 1px solid #c4c7c7;
+            background: transparent;
+            border-radius: 0;
+            padding: 8px 0;
+            transition: border-color 0.3s ease;
+        }
+        
+        .concierge-input:focus {
+            outline: none;
+            box-shadow: none;
+            border-bottom-color: #775a19; /* Secondary/Bronze */
+        }
+        
+        .concierge-select {
+             border: none;
+            border-bottom: 1px solid #c4c7c7;
+            background: transparent;
+            border-radius: 0;
+            padding: 8px 0;
+            transition: border-color 0.3s ease;
+        }
+        .concierge-select:focus {
+             outline: none;
+            box-shadow: none;
+            border-bottom-color: #775a19;
+        }
+    </style>
+</head>
+<body class="antialiased font-body-md text-body-md selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-primary-container/80 backdrop-blur-xl border-b border-outline-variant/30 transition-all duration-500 ease-in-out" id="navbar">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand -->
+<a class="flex items-center gap-2" href="#">
+<img alt="VIICASA Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A"/>
+<span class="font-headline-md text-headline-md tracking-tighter text-primary dark:text-primary-fixed hidden md:block">VIICASA</span>
+</a>
+<!-- Navigation Links (Hidden on Mobile) -->
+<div class="hidden md:flex gap-8 items-center">
+<!-- Using semantic intent mapping, this is a landing/waitlist page, none perfectly match, keeping inactive -->
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300" href="#stay">Stay</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300" href="#shop">Shop</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300" href="#live">Live</a>
+</div>
+<!-- Trailing Action -->
+<a class="bg-primary text-on-primary px-6 py-2 rounded font-label-caps text-label-caps hover:bg-surface-tint transition-colors duration-300" href="#waitlist">Join Waitlist</a>
+</div>
+</nav>
+<!-- Hero Section with Background Image -->
+<section class="relative min-h-[90vh] flex items-center pt-20" style="background-image: url('https://lh3.googleusercontent.com/aida/AEtjO1WZHIC6uQadd7zCLaVaivsM_pMkjiyg3RxQ5BvoJQHOc_G9yuAiPXharb7g4F5w27Qwgamigije354DwPapB6MTg_mPtdG6pT3-_NuAkfcCwGFLhUNAN-hlPqdYV8utDJbRGDAjaAXMl7-olOtHhrhix0mAJ7Lv0K73HrqG9jSV4NWFa1Ej4ebTVSpvPikx3jv8mZyebACVps0g5ecf9mV403HqVMLeSgHfqZfUTadETSFrh67yKJuF4mg'); background-size: cover; background-position: center; background-attachment: fixed;">
+<!-- Overlay for readability -->
+<div class="absolute inset-0 bg-primary/30 mix-blend-multiply"></div>
+<div class="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center text-on-primary pt-24 pb-32">
+<h1 class="font-display-lg text-display-lg mb-6 fade-in-up drop-shadow-lg" style="transition-delay: 0.1s;">Something Extraordinary Is Coming</h1>
+<p class="font-body-lg text-body-lg max-w-2xl mx-auto mb-10 text-surface-container-lowest/90 fade-in-up" style="transition-delay: 0.3s;">
+                VIICASA is the future of refined living. A curated collection of exceptional stays, exclusive shopping, and visionary living spaces designed for the discerning few.
+            </p>
+<a class="inline-block bg-primary text-on-primary px-8 py-4 rounded font-label-caps text-label-caps tracking-widest hover:bg-surface-tint transition-colors duration-300 fade-in-up" href="#waitlist" style="transition-delay: 0.5s;">
+                GET EARLY ACCESS
+            </a>
+</div>
+</section>
+<!-- Waitlist Module (Overlapping) -->
+<section class="relative z-20 -mt-24 w-full max-w-3xl mx-auto px-margin-mobile" id="waitlist">
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/20 p-8 md:p-12 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] fade-in-up">
+<div class="text-center mb-8">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">Request an Invitation</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Join the exclusive circle. Spaces are limited.</p>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-1" for="name">Full Name</label>
+<input class="concierge-input font-body-md text-body-md w-full" id="name" placeholder="Jane Doe" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-1" for="email">Email Address</label>
+<input class="concierge-input font-body-md text-body-md w-full" id="email" placeholder="jane@example.com" type="email"/>
+</div>
+</div>
+<div class="flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-1" for="interest">Primary Interest</label>
+<select class="concierge-select font-body-md text-body-md w-full" id="interest">
+<option value="stay">Stay - Luxury Accommodations</option>
+<option value="shop">Shop - Curated Goods</option>
+<option value="live">Live - Residential Estates</option>
+</select>
+</div>
+<div class="pt-4">
+<button class="w-full bg-primary text-on-primary py-4 rounded font-label-caps text-label-caps tracking-widest hover:bg-surface-tint transition-colors duration-300" type="submit">
+                        SUBMIT INQUIRY
+                    </button>
+</div>
+</form>
+</div>
+</section>
+<!-- Experience Preview (Bento Grid Style) -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center mb-16 fade-in-up">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">A Glimpse Inside</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">The architecture of a well-lived life, separated into three distinct pillars.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Stay (Large Block) -->
+<div class="md:col-span-8 group relative overflow-hidden rounded-lg fade-in-up aspect-[16/9] md:aspect-auto md:h-[600px] bg-surface-container-high border border-outline-variant/20" id="stay">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A serene, ultra-luxury villa master bedroom overlooking a tranquil infinity pool at dawn. Light-mode aesthetic with soft, warm sunlight illuminating plush white linens and natural stone textures. The atmosphere is quiet, exclusive, and highly aspirational, embodying quiet luxury design principles." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB8BuFnRQsuJewBL6zvddWHn2oqLe7LXSp293sTBLGe1toUA5djTpedvVeHSNZjJY1GFiQ-eTEZwGbxRKXiArjXuF-C7xxcFxeZWoV-pbjsTbX_fKoB3yYe6iXiHwmIHro7z5vzJiXGFVnwGhVb4FHLxHxxdcHScXpzFwHw_JkN9Fd3mfiB4aR9GJVXwSsxEkmkQE9mXLxr-aw-wSewP0IkE4f9x5OmqHU8-6Dszqlt23OmGlhbS1mg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 text-on-primary">
+<span class="inline-block px-3 py-1 bg-surface-container-lowest/20 backdrop-blur-md rounded font-label-caps text-label-caps mb-3">STAY</span>
+<h3 class="font-headline-md text-headline-md mb-2">Sanctuaries of Rest</h3>
+<p class="font-body-md text-body-md text-surface-container-lowest/80 max-w-md hidden md:block">Hand-selected properties around the globe, offering unparalleled privacy and bespoke service.</p>
+</div>
+</div>
+<!-- Shop (Small Block 1) -->
+<div class="md:col-span-4 group relative overflow-hidden rounded-lg fade-in-up aspect-square md:aspect-auto md:h-[600px] bg-surface-container-high border border-outline-variant/20" id="shop" style="transition-delay: 0.1s;">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A curated arrangement of bespoke artisanal homewares and premium lifestyle products on a minimalist marble plinth. Soft, diffused studio lighting against a light beige background. The composition is editorial and sophisticated, highlighting craftsmanship and refined materials in a light-mode corporate luxury style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnA2RVPwjH-rxURl1igllHUm4WSCvS0N5L1SY4N2ZmcMqsA3LdpWpJ25sp275gNvjDtVMHa-gD5ZCfgUjniuXUyBMGZq9v8_p056eHqTdTgD_NEa29N5V7fhqEaYd-cpNM2JlKueGLjDe4yMkJxuIWalgW3H8NRmU3p5d0yDdAnkKSVheO39iXF4XTKO_5Bnbq-hMKCW69cwL8j-E7jK6fQ_RwVPftcQisXrR_hbVxQl3wfDRUybps')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 text-on-primary">
+<span class="inline-block px-3 py-1 bg-surface-container-lowest/20 backdrop-blur-md rounded font-label-caps text-label-caps mb-3">SHOP</span>
+<h3 class="font-headline-md text-headline-md-mobile mb-2">Curated Goods</h3>
+<p class="font-body-md text-body-md text-surface-container-lowest/80">Objects of desire for the modern connoisseur.</p>
+</div>
+</div>
+<!-- Live (Wide Bottom Block) -->
+<div class="md:col-span-12 group relative overflow-hidden rounded-lg fade-in-up h-[400px] bg-surface-container-high border border-outline-variant/20" id="live" style="transition-delay: 0.2s;">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="An expansive, architecturally significant modern living room bathed in natural light. Floor-to-ceiling windows reveal a lush, manicured landscape. The interior features timeless furniture, structural grid alignments, and a palette of warm beiges and soft grays. The mood is expansive, permanent, and inherently luxurious." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA2fuf0jjDHFoZmRXw2CExgV9Jk8NBny4WPi4a0-g8Tzq9I5O-T26KDX2kfDJ-MPqOF8WpkfqwDyMeYyUWujbj0tKsjPyKvOjNZhiddBDmgYn6SndRCysY5hJUxxH0M2p1caJRG8f5foRzWxxIm1rWoVjkRlxz29Tu8efx-dz34-5nWrMa3zLvHsctBEXXyxhRJOOrldfBO_VAO3AmHbzt_zYlYLUPeT5b4rHsjnYr4a4F2xy6BLeze')"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent"></div>
+<div class="absolute inset-y-0 left-0 flex flex-col justify-center p-8 md:p-16 text-on-primary max-w-2xl">
+<span class="inline-block px-3 py-1 bg-surface-container-lowest/20 backdrop-blur-md rounded font-label-caps text-label-caps mb-3 w-max">LIVE</span>
+<h3 class="font-headline-lg text-headline-lg mb-4">Architectural Permanence</h3>
+<p class="font-body-lg text-body-lg text-surface-container-lowest/80">Permanent residences that redefine the standard of luxury living, built on a foundation of structural integrity and spatial generosity.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-section-gap bg-surface dark:bg-primary-container border-t border-outline-variant/20">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-8">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">VIICASA</div>
+<div class="flex flex-wrap justify-center gap-6 md:gap-8">
+<!-- Using semantic intent mapping, keeping inactive -->
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity duration-300" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity duration-300" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity duration-300" href="#">Contact</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-primary-container opacity-80 hover:opacity-100 transition-opacity duration-300" href="#">Journal</a>
+</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-primary-container">
+                © 2026 VIICASA. All rights reserved.
+            </div>
+</div>
+</footer>
+<script>
+        // Intersection Observer for scroll animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.fade-in-up').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Navbar scroll effect
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('shadow-sm');
+                    navbar.classList.replace('bg-surface/80', 'bg-surface/95');
+                } else {
+                    navbar.classList.remove('shadow-sm');
+                    navbar.classList.replace('bg-surface/95', 'bg-surface/80');
+                }
+            });
+        });
+    </script>
+</body></html>
