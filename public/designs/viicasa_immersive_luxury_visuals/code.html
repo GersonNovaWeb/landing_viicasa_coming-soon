@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-
-<html class="scroll-smooth" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>VIICASA - Something Extraordinary Is Coming</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -155,7 +153,7 @@
 <div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
 <!-- Brand -->
 <a class="flex items-center gap-2" href="#">
-<img alt="VIICASA Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A"/>
+<img alt="VIICASA Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A">
 <span class="font-headline-md text-headline-md tracking-tighter text-primary dark:text-primary-fixed hidden md:block">VIICASA</span>
 </a>
 <!-- Navigation Links (Hidden on Mobile) -->
@@ -167,7 +165,13 @@
 </div>
 <!-- Trailing Action -->
 <a class="bg-primary text-on-primary px-6 py-2 rounded font-label-caps text-label-caps hover:bg-surface-tint transition-colors duration-300" href="#waitlist">Join Waitlist</a>
-</div>
+
+        <!-- Mobile Menu Toggle -->
+        <div class="md:hidden flex items-center viicasa-hamburger-container">
+            <button class="p-2 text-primary" id="viicasa-mobile-toggle">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div></div>
 </nav>
 <!-- Hero Section with Background Image -->
 <section class="relative min-h-[90vh] flex items-center pt-20" style="background-image: url('https://lh3.googleusercontent.com/aida/AEtjO1WZHIC6uQadd7zCLaVaivsM_pMkjiyg3RxQ5BvoJQHOc_G9yuAiPXharb7g4F5w27Qwgamigije354DwPapB6MTg_mPtdG6pT3-_NuAkfcCwGFLhUNAN-hlPqdYV8utDJbRGDAjaAXMl7-olOtHhrhix0mAJ7Lv0K73HrqG9jSV4NWFa1Ej4ebTVSpvPikx3jv8mZyebACVps0g5ecf9mV403HqVMLeSgHfqZfUTadETSFrh67yKJuF4mg'); background-size: cover; background-position: center; background-attachment: fixed;">
@@ -194,11 +198,11 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="flex flex-col">
 <label class="font-label-caps text-label-caps text-on-surface-variant mb-1" for="name">Full Name</label>
-<input class="concierge-input font-body-md text-body-md w-full" id="name" placeholder="Jane Doe" type="text"/>
+<input class="concierge-input font-body-md text-body-md w-full" id="name" placeholder="Jane Doe" type="text">
 </div>
 <div class="flex flex-col">
 <label class="font-label-caps text-label-caps text-on-surface-variant mb-1" for="email">Email Address</label>
-<input class="concierge-input font-body-md text-body-md w-full" id="email" placeholder="jane@example.com" type="email"/>
+<input class="concierge-input font-body-md text-body-md w-full" id="email" placeholder="jane@example.com" type="email">
 </div>
 </div>
 <div class="flex flex-col">
@@ -302,4 +306,47 @@
             });
         });
     </script>
-</body></html>
+
+
+    <!-- Injected Mobile Menu Overlay -->
+    <div id="viicasa-mobile-menu" class="fixed inset-0 z-[100] bg-background transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col px-margin-mobile py-6 md:hidden">
+        <div class="flex justify-between items-center w-full mb-12">
+            <img alt="VIICASA Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A">
+            <button id="viicasa-mobile-close" class="p-2 text-primary">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-8 flex-1">
+            <a href="#" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">VIICASA</a>
+<a href="#stay" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Stay</a>
+<a href="#shop" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Shop</a>
+<a href="#live" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Live</a>
+        </div>
+        <div class="mt-auto">
+            <a href="#waitlist" class="block w-full text-center bg-primary text-on-primary py-4 font-label-caps tracking-widest uppercase mobile-nav-link">Join Waitlist</a>
+        </div>
+    </div>
+    
+    <script id="viicasa-mobile-menu-script">
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('viicasa-mobile-toggle');
+            const close = document.getElementById('viicasa-mobile-close');
+            const menu = document.getElementById('viicasa-mobile-menu');
+            const links = document.querySelectorAll('.mobile-nav-link');
+
+            if (toggle && menu && close) {
+                toggle.addEventListener('click', () => {
+                    menu.classList.remove('translate-x-full');
+                });
+                close.addEventListener('click', () => {
+                    menu.classList.add('translate-x-full');
+                });
+                links.forEach(link => {
+                    link.addEventListener('click', () => {
+                        menu.classList.add('translate-x-full');
+                    });
+                });
+            }
+        });
+    </script>
+    </body></html>

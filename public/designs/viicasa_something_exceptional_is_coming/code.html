@@ -195,7 +195,7 @@
 </div>
 <!-- Mobile Menu Toggle -->
 <div class="md:hidden flex items-center">
-<button class="p-2 text-primary">
+<button class="p-2 text-primary" id="viicasa-mobile-toggle">
 <span class="material-symbols-outlined">menu</span>
 </button>
 </div>
@@ -322,4 +322,46 @@
     </script>
 
 
-</body></html>
+
+
+    <!-- Injected Mobile Menu Overlay -->
+    <div id="viicasa-mobile-menu" class="fixed inset-0 z-[100] bg-background transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col px-margin-mobile py-6 md:hidden">
+        <div class="flex justify-between items-center w-full mb-12">
+            <img alt="VIICASA Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A">
+            <button id="viicasa-mobile-close" class="p-2 text-primary">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-8 flex-1">
+            <a href="#" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Stay</a>
+<a href="#" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Shop</a>
+<a href="#" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Live</a>
+        </div>
+        <div class="mt-auto">
+            <a href="#waitlist" class="block w-full text-center bg-primary text-on-primary py-4 font-label-caps tracking-widest uppercase mobile-nav-link">Join Waitlist</a>
+        </div>
+    </div>
+    
+    <script id="viicasa-mobile-menu-script">
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('viicasa-mobile-toggle');
+            const close = document.getElementById('viicasa-mobile-close');
+            const menu = document.getElementById('viicasa-mobile-menu');
+            const links = document.querySelectorAll('.mobile-nav-link');
+
+            if (toggle && menu && close) {
+                toggle.addEventListener('click', () => {
+                    menu.classList.remove('translate-x-full');
+                });
+                close.addEventListener('click', () => {
+                    menu.classList.add('translate-x-full');
+                });
+                links.forEach(link => {
+                    link.addEventListener('click', () => {
+                        menu.classList.add('translate-x-full');
+                    });
+                });
+            }
+        });
+    </script>
+    </body></html>

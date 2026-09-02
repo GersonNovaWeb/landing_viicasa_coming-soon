@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>VIICASA - Coming Soon</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -113,7 +111,7 @@
 <header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl border-b border-outline-variant/30 transition-all duration-700 ease-in-out">
 <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6 w-full max-w-container-max mx-auto">
 <div class="flex items-center gap-4">
-<img alt="VIICASA Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A"/>
+<img alt="VIICASA Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A">
 </div>
 <nav class="hidden md:flex gap-8 items-center">
 <a class="font-body-md text-body-md uppercase tracking-widest text-on-surface-variant/60 hover:text-primary transition-colors duration-500" href="#stay">Stay</a>
@@ -124,14 +122,20 @@
 <span class="hidden md:inline-block font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest border border-outline-variant px-3 py-1 rounded-full">Coming Soon</span>
 <a class="bg-primary text-on-primary font-body-md text-body-md px-6 py-2 hover:bg-tertiary transition-colors duration-300" href="#waitlist">Join Waitlist</a>
 </div>
-</div>
+
+        <!-- Mobile Menu Toggle -->
+        <div class="md:hidden flex items-center viicasa-hamburger-container">
+            <button class="p-2 text-primary" id="viicasa-mobile-toggle">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div></div>
 </header>
 <main class="pt-[100px]">
 <!-- Hero Section -->
 <section class="min-h-[80vh] flex items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto py-section-gap">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
 <div class="lg:col-span-5 reveal active space-y-8 z-10 relative">
-<h1 class="font-display-lg text-display-lg text-primary">Elevated Living, <br/>Coming Soon.</h1>
+<h1 class="font-display-lg text-display-lg text-primary">Elevated Living, <br>Coming Soon.</h1>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
                         VIICASA is creating a curated hospitality and lifestyle experience designed around exceptional spaces, thoughtful details, and elevated living.
                     </p>
@@ -141,7 +145,7 @@
 </div>
 <div class="lg:col-span-7 mt-12 lg:mt-0 reveal active relative">
 <div class="aspect-[4/5] lg:aspect-[16/10] overflow-hidden bg-surface-container-high relative">
-<img class="w-full h-full object-cover" data-alt="A luxurious, minimalist architectural space with soft, natural lighting, featuring warm white plastered walls, a large arched window looking out to a serene ocean view, light wood slatted room dividers, and a simple ceramic vase with dried branches on a marble table in a light-mode contemporary setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl6UZdoGlbQ3z4yghhcztd35spz6dA5rNo_Cem9u1IAgaMDHBPRHQqtzjwxMEqCqRxszTGpKd6qjxkWyC822IoL1IsuGWkaG_W4kgQS3u4ArAVhjCR1BwgVuSUWCrZzz4TAku4PkBpxNegUFszm1Cs9yNf0vY86AsLG6nY06RIgY76Az-YS5uIrqpfVQWtteQIKAdbBihRKbBDVWXY4DrXV1PKPDvC2_rc7GrPFQGmSzFl-7V0c9Ut"/>
+<img class="w-full h-full object-cover" data-alt="A luxurious, minimalist architectural space with soft, natural lighting, featuring warm white plastered walls, a large arched window looking out to a serene ocean view, light wood slatted room dividers, and a simple ceramic vase with dried branches on a marble table in a light-mode contemporary setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl6UZdoGlbQ3z4yghhcztd35spz6dA5rNo_Cem9u1IAgaMDHBPRHQqtzjwxMEqCqRxszTGpKd6qjxkWyC822IoL1IsuGWkaG_W4kgQS3u4ArAVhjCR1BwgVuSUWCrZzz4TAku4PkBpxNegUFszm1Cs9yNf0vY86AsLG6nY06RIgY76Az-YS5uIrqpfVQWtteQIKAdbBihRKbBDVWXY4DrXV1PKPDvC2_rc7GrPFQGmSzFl-7V0c9Ut">
 </div>
 </div>
 </div>
@@ -168,13 +172,13 @@
                     </p>
 </div>
 <div class="order-1 md:order-2 aspect-[4/5] overflow-hidden bg-surface-container">
-<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="An interior view of a minimal luxury bedroom, featuring a low-profile platform bed dressed in organic linen, set against a smooth warm stone wall, bathed in morning sunlight creating sharp shadows, embodying high-end tranquility in a light-mode palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCordNOP3ABfz7wpyXKEHNVAlJhnmJLxbMWVQ5LQUncBizn_qbRRM9fyCzC1Yt5vQjyRFtaDGaa01ZekzHYoGT1qAe0Ug-ejle2q0B5Y0OjVzJq7n6hLNHt60D7m-cvW860fSn84DvWWXykGLk8QAtEev1yF9pufC3kCDNoc1U-Q6D0LsRFBKkhwJqLh_81felt-5uea-upBIIdZg83QKcTKyY-SuZEgFVjfgUghTT0dEv38yRXZNAk"/>
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="An interior view of a minimal luxury bedroom, featuring a low-profile platform bed dressed in organic linen, set against a smooth warm stone wall, bathed in morning sunlight creating sharp shadows, embodying high-end tranquility in a light-mode palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCordNOP3ABfz7wpyXKEHNVAlJhnmJLxbMWVQ5LQUncBizn_qbRRM9fyCzC1Yt5vQjyRFtaDGaa01ZekzHYoGT1qAe0Ug-ejle2q0B5Y0OjVzJq7n6hLNHt60D7m-cvW860fSn84DvWWXykGLk8QAtEev1yF9pufC3kCDNoc1U-Q6D0LsRFBKkhwJqLh_81felt-5uea-upBIIdZg83QKcTKyY-SuZEgFVjfgUghTT0dEv38yRXZNAk">
 </div>
 </div>
 <!-- SHOP -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center reveal" id="shop">
 <div class="aspect-[4/5] overflow-hidden bg-surface-container">
-<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="A curated collection of artisanal ceramics and woven textiles arranged asymmetrically on a sleek stone plinth, dramatically lit with soft studio lighting against a pale taupe background, reflecting a refined editorial luxury style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8UMmAnKdGBGOnowcbl9El-ABOvNWD-psOPUoVUlkK6YDyCEeR5qLniDoKKmvQ_i_J8TXabFrjbnaDqu_cnA7jKkUhswXrE4oOXfd-gH1JPxm_RVxpCrlg96BolPuMaz6qXKkrpvCTwTVnis6mDEHDreZTfuF9m2QlQwGC5eqnIRm5ArASVZjqe38Iy3GG0PUmg1h0OP0CIIi8QRzNYB9A9uh3Tvt-I96hMkAIOwjJH_AFBReP6wdc"/>
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="A curated collection of artisanal ceramics and woven textiles arranged asymmetrically on a sleek stone plinth, dramatically lit with soft studio lighting against a pale taupe background, reflecting a refined editorial luxury style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8UMmAnKdGBGOnowcbl9El-ABOvNWD-psOPUoVUlkK6YDyCEeR5qLniDoKKmvQ_i_J8TXabFrjbnaDqu_cnA7jKkUhswXrE4oOXfd-gH1JPxm_RVxpCrlg96BolPuMaz6qXKkrpvCTwTVnis6mDEHDreZTfuF9m2QlQwGC5eqnIRm5ArASVZjqe38Iy3GG0PUmg1h0OP0CIIi8QRzNYB9A9uh3Tvt-I96hMkAIOwjJH_AFBReP6wdc">
 </div>
 <div class="space-y-6 md:pl-12">
 <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">02 / Shop</span>
@@ -194,7 +198,7 @@
                     </p>
 </div>
 <div class="order-1 md:order-2 aspect-[4/5] overflow-hidden bg-surface-container">
-<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="Exterior shot of a contemporary villa with clean, rectilinear concrete forms, integrated smoothly into a rugged coastal landscape, highlighting minimal luxury architecture with warm sunlight reflecting off a negative edge pool in a bright, light-mode setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNiMzbl-5EicZeoPmvLhyKqNhfeX355niAL1TWyag-wHISsK_-6EOvZ4i2H6GOt3Pah6mUE9HVjOnX2RA3QlRfQ2_Ir0OFbkjjU47mUhskqrKb8Xpv1_YsCRY3VObspSzoCwINGYtbrTyS_lWc6Y8-joRfQEaT0H-7_DwxhDDWim8H6e2-W4mgkMWg3bECCb4eWysPIBgocYHkejYsf11rBih29xw6pm3Zrf-K63ujL7YEgmN3EW1h"/>
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" data-alt="Exterior shot of a contemporary villa with clean, rectilinear concrete forms, integrated smoothly into a rugged coastal landscape, highlighting minimal luxury architecture with warm sunlight reflecting off a negative edge pool in a bright, light-mode setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNiMzbl-5EicZeoPmvLhyKqNhfeX355niAL1TWyag-wHISsK_-6EOvZ4i2H6GOt3Pah6mUE9HVjOnX2RA3QlRfQ2_Ir0OFbkjjU47mUhskqrKb8Xpv1_YsCRY3VObspSzoCwINGYtbrTyS_lWc6Y8-joRfQEaT0H-7_DwxhDDWim8H6e2-W4mgkMWg3bECCb4eWysPIBgocYHkejYsf11rBih29xw6pm3Zrf-K63ujL7YEgmN3EW1h">
 </div>
 </div>
 </section>
@@ -211,30 +215,30 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="relative border-b border-outline-variant pb-2 border-bottom-focus transition-colors">
 <label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1" for="fname">First Name</label>
-<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="fname" placeholder="Enter first name" type="text"/>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="fname" placeholder="Enter first name" type="text">
 </div>
 <div class="relative border-b border-outline-variant pb-2 border-bottom-focus transition-colors">
 <label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1" for="lname">Last Name</label>
-<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="lname" placeholder="Enter last name" type="text"/>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="lname" placeholder="Enter last name" type="text">
 </div>
 </div>
 <div class="relative border-b border-outline-variant pb-2 border-bottom-focus transition-colors">
 <label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1" for="email">Email Address</label>
-<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="email" placeholder="Enter email address" type="email"/>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-primary placeholder-outline" id="email" placeholder="Enter email address" type="email">
 </div>
 <div>
 <label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-4">Area of Interest</label>
 <div class="flex flex-wrap gap-4">
 <label class="cursor-pointer">
-<input class="peer sr-only" type="checkbox"/>
+<input class="peer sr-only" type="checkbox">
 <span class="px-4 py-2 border border-outline-variant rounded-none font-body-md text-sm text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors">Stay</span>
 </label>
 <label class="cursor-pointer">
-<input class="peer sr-only" type="checkbox"/>
+<input class="peer sr-only" type="checkbox">
 <span class="px-4 py-2 border border-outline-variant rounded-none font-body-md text-sm text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors">Shop</span>
 </label>
 <label class="cursor-pointer">
-<input class="peer sr-only" type="checkbox"/>
+<input class="peer sr-only" type="checkbox">
 <span class="px-4 py-2 border border-outline-variant rounded-none font-body-md text-sm text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors">Live</span>
 </label>
 </div>
@@ -278,4 +282,46 @@
             revealOnScroll(); // Trigger on load
         });
     </script>
-</body></html>
+
+
+    <!-- Injected Mobile Menu Overlay -->
+    <div id="viicasa-mobile-menu" class="fixed inset-0 z-[100] bg-background transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col px-margin-mobile py-6 md:hidden">
+        <div class="flex justify-between items-center w-full mb-12">
+            <img alt="VIICASA Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeGg2yduRVQoZ9pvfz1iDe35Nf3zTAjfZJn_SaKB6tFKn3sHP7zEVnt5lUVIBLXE-A4CHUbzVTh9F43zvobiQud9LIsIAapBadbwWI-rM4b09JoxL9aDU541gEDZCuOvcOleEZB_eS77Pi71_xcomrHlvX34N5HwLtSfnbr3G0m2zU2Uo1lnJzCJpPb52_MXAgR85O1dSpUH9dNLEqRedCCgTS80VUYEZDNRbD8XxJj7QM44culStnS-A">
+            <button id="viicasa-mobile-close" class="p-2 text-primary">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-8 flex-1">
+            <a href="#stay" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Stay</a>
+<a href="#shop" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Shop</a>
+<a href="#live" class="font-display-lg text-4xl text-primary border-b border-outline-variant/30 pb-4 mobile-nav-link">Live</a>
+        </div>
+        <div class="mt-auto">
+            <a href="#waitlist" class="block w-full text-center bg-primary text-on-primary py-4 font-label-caps tracking-widest uppercase mobile-nav-link">Join Waitlist</a>
+        </div>
+    </div>
+    
+    <script id="viicasa-mobile-menu-script">
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('viicasa-mobile-toggle');
+            const close = document.getElementById('viicasa-mobile-close');
+            const menu = document.getElementById('viicasa-mobile-menu');
+            const links = document.querySelectorAll('.mobile-nav-link');
+
+            if (toggle && menu && close) {
+                toggle.addEventListener('click', () => {
+                    menu.classList.remove('translate-x-full');
+                });
+                close.addEventListener('click', () => {
+                    menu.classList.add('translate-x-full');
+                });
+                links.forEach(link => {
+                    link.addEventListener('click', () => {
+                        menu.classList.add('translate-x-full');
+                    });
+                });
+            }
+        });
+    </script>
+    </body></html>
