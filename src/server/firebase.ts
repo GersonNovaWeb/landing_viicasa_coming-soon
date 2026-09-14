@@ -2,6 +2,7 @@ import 'server-only';
 import {applicationDefault,getApps,initializeApp} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
+import {credentialFromJson} from './credentials.ts';
 export class AppError extends Error{status:number;constructor(status:number,message:string){super(message);this.status=status}}
 export function configuration(){
   const mode=process.env.FIREBASE_MODE||'disabled';
@@ -17,7 +18,7 @@ export function firebase(){
   const{mode,projectId}=configuration();
   if(mode==='disabled')throw new AppError(503,'Estamos preparando el registro. Inténtalo de nuevo más adelante.');
   const name=`comingsoon-${mode}-${projectId}`;
-  const app=getApps().find(a=>a.name===name)||initializeApp({projectId,...(mode==='live'?{credential:applicationDefault()}:{})},name);
+  const app=getApps().find(a=>a.name===name)||initializeApp({projectId,...(mode==='live'?{credential:credentialFromJson(process.env.FIREBASE_SERVICE_ACCOUNT_JSON,projectId)??applicationDefault()}:{})},name);
   return{db:getFirestore(app),auth:getAuth(app)};
 }
 export function registrationOpen(){return configuration().mode!=='disabled'&&process.env.REGISTRATION_ENABLED==='true'&&process.env.PRIVACY_APPROVED==='true'}

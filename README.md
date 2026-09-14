@@ -35,7 +35,7 @@ Las traducciones están centralizadas en `src/lib/i18n.ts`; `src/components/lang
 
 1. Verificar que `viicasa` tiene Firestore, base `(default)`, y Authentication con proveedor Google habilitado.
 2. Configurar los dominios autorizados de Authentication para el dominio final y las pruebas aprobadas.
-3. Proporcionar una credencial **de servidor** mediante `GOOGLE_APPLICATION_CREDENTIALS`, con ruta absoluta a un JSON privado fuera de `public`, del repositorio y del artefacto publicado. No pegar el JSON en el chat ni incluirlo en variables `NEXT_PUBLIC_*`. La configuración web proporcionada es pública y no reemplaza esta credencial.
+3. Proporcionar una credencial **de servidor** mediante la variable privada `FIREBASE_SERVICE_ACCOUNT_JSON` en Hostinger, o `GOOGLE_APPLICATION_CREDENTIALS` con ruta absoluta a un JSON privado fuera de `public`, del repositorio y del artefacto publicado. La variable JSON tiene prioridad; se valida tipo y proyecto, y un error no expone su contenido. No pegar el JSON en el chat ni incluirlo en variables `NEXT_PUBLIC_*`. La configuración web proporcionada es pública y no reemplaza esta credencial.
 4. Conceder al servidor solo los permisos necesarios para Firestore y las sesiones de Authentication; validar IAM antes de usar datos reales.
 5. Revisar las reglas actuales antes de aplicar `firestore.rules` o los índices. El archivo incluido deniega acceso directo desde el navegador a toda la base. **No desplegarlo sobre otras aplicaciones sin fusionar sus políticas.** Firebase Admin accede mediante IAM.
 6. Ajustar `FIREBASE_MODE=live`, `NEXT_PUBLIC_FIREBASE_MODE=live`, proyecto real y `SITE_URL` con origen HTTPS exacto; eliminar variables de emuladores. `npm run check:firebase` realiza solo lecturas y no imprime usuarios.
@@ -83,6 +83,10 @@ npm run build
 La compilación incluye TypeScript. El lint cubre el código activo y las pruebas; el generador antiguo `generateData.js` y el almacén simulado `src/lib/store.ts` conservan errores heredados fuera de ese alcance. La auditoría tras actualizar Next dejó dos avisos moderados transitivos de `uuid`/`gaxios`; revisar nuevamente antes de publicar. No se aplicaron actualizaciones mayores forzadas.
 
 ## Publicación prevista en Hostinger
+
+Guía de importación, variables privadas y comprobaciones: [HOSTINGER.md](HOSTINGER.md).
+Pruebas de credenciales sin conexión ni claves reales:
+`node --conditions=react-server --experimental-strip-types --test test/credentials.mjs`.
 
 Esta versión **requiere servidor Node.js**; no funciona como exportación estática en GitHub Pages. Se retiró el comando antiguo de publicación de `out`. No se modificaron DNS, WordPress ni el repositorio remoto.
 
