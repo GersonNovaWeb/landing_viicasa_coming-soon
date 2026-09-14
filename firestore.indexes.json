@@ -1,0 +1,11 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    {"collectionGroup":"cs_contacts","fieldPath":"notes","indexes":[]},
+    {"collectionGroup":"cs_inquiries","fieldPath":"notes","indexes":[]},
+    {"collectionGroup":"cs_inquiries","fieldPath":"message","indexes":[]},
+    {"collectionGroup":"cs_pending","fieldPath":"message","indexes":[]},
+    {"collectionGroup":"cs_pending","fieldPath":"cleanup_at","ttl":true,"indexes":[]},
+    {"collectionGroup":"cs_rate_limits","fieldPath":"expires_at","ttl":true,"indexes":[]}
+  ]
+}

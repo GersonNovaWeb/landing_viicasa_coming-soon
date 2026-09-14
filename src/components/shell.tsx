@@ -1,0 +1,8 @@
+'use client';
+import {useLanguage,LanguageSelector} from '@/components/language';
+
+import Link from 'next/link';
+import {useState} from 'react';
+import {Menu,X,ArrowUpRight} from 'lucide-react';
+export function Header(){const {t} = useLanguage();const[open,setOpen]=useState(false);return <header className="site-header"><div className="container header-inner"><Link href="/" className="wordmark" aria-label={t("VIICASA inicio")}>VIICASA<span>THE ART OF LIVING</span></Link><nav className={open?'nav-links open':'nav-links'} aria-label={t("Principal")} onKeyDown={e=>{if(e.key==='Escape')setOpen(false)}}>{[['/viilife','ViiLife'],['/viiconcierge','ViiConcierge'],['/shop','Shop'],['/cuenta',t('Mi cuenta')]].map(([href,label])=><Link key={href} href={href} onClick={()=>setOpen(false)}>{t(label)}</Link>)}</nav><Link className="button header-cta" href="/#registro">{t("Acceso anticipado ")}<ArrowUpRight size={16}/></Link><LanguageSelector/><button type="button" className="menu-toggle" onClick={()=>setOpen(!open)} aria-expanded={open} aria-label={open?t('Cerrar menú'):t('Abrir menú')}>{open?<X/>:<Menu/>}</button></div></header>}
+export function Footer(){const {t} = useLanguage();return <footer className="site-footer"><div className="container footer-top"><Link href="/" className="wordmark">VIICASA<span>THE ART OF LIVING</span></Link><p>{t("Espacios que inspiran.")}<br/>{t("Detalles que permanecen.")}</p><nav aria-label={t("Información")}><Link href="/privacidad">{t("Privacidad")}</Link><Link href="/#registro">{t("Contacto")}</Link><Link href="/admin">{t("Administración")}</Link></nav></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} VIICASA</span><span>{t("Una nueva forma de habitar.")}</span></div></footer>}

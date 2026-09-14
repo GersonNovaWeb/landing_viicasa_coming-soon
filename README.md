@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VIICASA · Coming Soon
 
-## Getting Started
+Implementación de **Immersive Luxury** con Next.js, Firebase Authentication y Firestore. Proyecto independiente del backend de la plataforma completa. Destino previsto: aplicación Node.js en Hostinger para `viicasa.com`.
 
-First, run the development server:
+## Estado — 13 septiembre 2026
 
-```bash
+Implementado y probado localmente: landing, páginas ViiLife/ViiConcierge/Shop, registro con Google, intereses, solicitudes, confirmación por correo y dashboard protegido con seguimiento. El envío SMTP y Google real requieren configuración y pruebas externas; no se han validado en producción. Shop es una página de presentación, no una tienda con pagos.
+
+**No está desplegado.** Se configuró localmente la credencial privada aportada por el cliente, fuera del repositorio. Firestore y Authentication reales pasaron las comprobaciones de lectura, sin crear usuarios ni escribir datos, y Google está habilitado. Se confirmó también la autorización de `127.0.0.1`, además de `localhost`, `viicasa.firebaseapp.com` y `viicasa.web.app`. El inicio de sesión real en el navegador aún requiere la prueba del cliente. El registro público permanece cerrado y SMTP desactivado. Sin configuración local, el modo predeterminado sigue desactivando Firebase. El dominio existente tiene WordPress/WooCommerce: no reemplazarlo antes de acordar la migración y comprobar un respaldo restaurable.
+
+Administrador autorizado en el servidor: `viicasa.database@gmail.com`. Los usuarios no pueden asignarse permisos. No hay contraseña administrativa predeterminada.
+
+## Desarrollo
+
+Usar Node.js 22 o posterior y npm. Instalar desde el lockfile:
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Vista previa: `http://127.0.0.1:3010`. Sin `.env.local` queda en modo visual seguro. Configuración en `.env.example`; copiarla a `.env.local` y mantener ese archivo fuera de Git. Las variables `NEXT_PUBLIC_*` se incorporan al navegador durante el build, por lo que requieren reconstrucción al cambiarlas.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Rutas: `/`, `/viilife`, `/viiconcierge`, `/shop`, `/cuenta`, `/admin`, `/privacidad`, `/confirmar`. `/comingsoon` y `/commingsoon` redirigen al inicio. Los prototipos de propiedades/reservas se conservan en `src/legacy/`, fuera del enrutador. No son módulos operativos de esta entrega.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Idiomas
 
-## Learn More
+Selector Español / English en la cabecera, acceso administrativo y dashboard; también disponible en móvil. Español es el idioma predeterminado. La cookie de preferencia `viicasa_language` dura un año, es exclusiva del sitio y no contiene identidad ni permisos. El servidor lee esa preferencia para renderizar contenido y metadatos coherentes; cambiar de idioma refresca el contenido sin navegar a otra ruta ni reiniciar los campos del formulario.
 
-To learn more about Next.js, take a look at the following resources:
+Las traducciones están centralizadas en `src/lib/i18n.ts`; `src/components/language.tsx` y `src/server/locale.ts` comparten el idioma. Los nombres, correos y notas del cliente no se traducen. Las fechas del dashboard usan la configuración regional seleccionada. Los registros guardan `locale` (`es` por defecto para compatibilidad) y las futuras confirmaciones SMTP usan ese idioma; SMTP continúa deshabilitado hasta su configuración.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`npm run test:i18n` comprueba traducciones, textos de correo y ocho rutas en ambos idiomas mediante lecturas de la vista previa en el puerto 3010. `npm run test:integration` comprueba también registros en inglés y el dashboard con emuladores exclusivamente.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Configuración de producción pendiente
 
-## Deploy on Vercel
+1. Verificar que `viicasa` tiene Firestore, base `(default)`, y Authentication con proveedor Google habilitado.
+2. Configurar los dominios autorizados de Authentication para el dominio final y las pruebas aprobadas.
+3. Proporcionar una credencial **de servidor** mediante `GOOGLE_APPLICATION_CREDENTIALS`, con ruta absoluta a un JSON privado fuera de `public`, del repositorio y del artefacto publicado. No pegar el JSON en el chat ni incluirlo en variables `NEXT_PUBLIC_*`. La configuración web proporcionada es pública y no reemplaza esta credencial.
+4. Conceder al servidor solo los permisos necesarios para Firestore y las sesiones de Authentication; validar IAM antes de usar datos reales.
+5. Revisar las reglas actuales antes de aplicar `firestore.rules` o los índices. El archivo incluido deniega acceso directo desde el navegador a toda la base. **No desplegarlo sobre otras aplicaciones sin fusionar sus políticas.** Firebase Admin accede mediante IAM.
+6. Ajustar `FIREBASE_MODE=live`, `NEXT_PUBLIC_FIREBASE_MODE=live`, proyecto real y `SITE_URL` con origen HTTPS exacto; eliminar variables de emuladores. `npm run check:firebase` realiza solo lecturas y no imprime usuarios.
+7. Completar y aprobar el aviso de privacidad: responsable, contacto, finalidades, conservación y procedimiento para ejercer derechos. La página actual es un borrador. Establecer `PRIVACY_CONTACT_EMAIL`; habilitar `PRIVACY_APPROVED=true` y `REGISTRATION_ENABLED=true` solo después de aprobar el texto.
+8. Para registro sin Google, configurar SMTP y remitente, `MAIL_MODE=smtp`, y verificar entrega real. Sin SMTP, solo se envían registros con sesión Google verificada.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+No introducir usuarios de prueba en producción sin autorización. El diagnóstico de conexión no prueba el popup Google, correo, permisos de escritura ni Hostinger.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Datos y protección
+
+| Colección | Uso |
+| --- | --- |
+| `cs_accounts` | Accesos con Google, no implica suscripción |
+| `cs_contacts` | Contactos verificados, intereses y consentimiento |
+| `cs_inquiries` | Solicitudes, estado y notas privadas |
+| `cs_pending` | Confirmaciones pendientes, hash del token y caducidad |
+| `cs_rate_limits` | Contadores con expiración |
+| `cs_audit` | Cambios de seguimiento del administrador |
+
+Sesiones en cookie HttpOnly, SameSite=Lax y Secure bajo HTTPS. El servidor verifica proveedor Google, correo verificado, revocación y origen de escrituras. Las respuestas privadas no se cachean. Consentimientos no preseleccionados; Google no suscribe automáticamente. Los registros anónimos solo se verifican al confirmar correo. El dashboard no usa datos ficticios.
+
+Confirmaciones: vencen en 24 horas, consumo transaccional por POST, no por abrir el enlace. `cleanup_at` solicita TTL de pendientes a las 48 horas; `expires_at` aplica TTL a contadores. Hay que activar/verificar esas políticas: no garantizan borrado inmediato; documentos antiguos sin el campo requieren revisión. Falta acordar retención de contactos, solicitudes y auditoría.
+
+La baja desde `/cuenta` cambia el consentimiento. No hay campañas, envíos masivos, borrado automático de cuentas ni módulos de propiedades/pagos. Antes de introducir campañas, agregar baja por enlace para contactos registrados solo por correo.
+
+## Pruebas sin producción
+
+Emuladores oficiales con proyecto `demo-*`, nunca credenciales reales. Requiere Firebase CLI y Java compatible con Firestore. En terminales independientes desde esta carpeta:
+
+```sh
+firebase emulators:start --only auth,firestore --project demo-viicasa-comingsoon
+npm run dev:emulator
+npm run test:integration
+```
+
+Firebase usa puertos 8086/9096. Next de prueba usa `127.0.0.1:3012`, salida `.next-test`, registro abierto **solo para datos ficticios**, SMTP desactivado y sin credencial de producción. Google es simulado por el emulador, no una cuenta externa. Sin exportación, se pierden datos al reiniciar emuladores.
+
+Cobertura: rutas, identidad, permisos, falsificación, consentimiento, CSRF, tamaño de solicitudes, deduplicación concurrente, notas, baja, acceso directo bloqueado, confirmación atómica, errores de correo, paginación y revocación.
+
+```sh
+npm run lint
+npm run build
+```
+
+La compilación incluye TypeScript. El lint cubre el código activo y las pruebas; el generador antiguo `generateData.js` y el almacén simulado `src/lib/store.ts` conservan errores heredados fuera de ese alcance. La auditoría tras actualizar Next dejó dos avisos moderados transitivos de `uuid`/`gaxios`; revisar nuevamente antes de publicar. No se aplicaron actualizaciones mayores forzadas.
+
+## Publicación prevista en Hostinger
+
+Esta versión **requiere servidor Node.js**; no funciona como exportación estática en GitHub Pages. Se retiró el comando antiguo de publicación de `out`. No se modificaron DNS, WordPress ni el repositorio remoto.
+
+Primero desplegar en un dominio temporal aprobado y probar con Firebase/SMTP reales: Google, administrador y no administrador, escritura/lectura, solicitudes, confirmación de correo, baja y cierre de sesión. Confirmar navegación móvil y textos con el cliente.
+
+En Linux de Hostinger, construir con variables públicas definitivas: `npm ci`, `npm run build`. Usar el flujo Node.js/Next.js del panel o `npm start`, según permita la cuenta. No subir `node_modules` de Windows.
+
+También se genera `.next/standalone`. Si se utiliza ese artefacto, incluir `public` en `standalone/public` y `.next/static` en `standalone/.next/static`; iniciar `server.js` con `PORT`/`HOSTNAME` configurados por el alojamiento. No publicar `.env.local`, credenciales, pruebas ni emuladores.
+
+Antes del cambio final: aprobación del cliente, respaldo de archivos/base WordPress y restauración, rutas/SEO existentes, HTTPS, DNS y registros de correo. Mantener registros cerrados hasta aprobar pruebas reales y aviso.

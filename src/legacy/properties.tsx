@@ -1,4 +1,5 @@
 "use client";
+// Archived prototype only. This component is intentionally not a public route.
 
 import { useStore } from "@/lib/store";
 import { useState } from "react";

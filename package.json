@@ -3,22 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --hostname 127.0.0.1 --port 3010",
+    "dev:emulator": "node scripts/dev-emulator.mjs",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d out --dotfiles"
+    "lint": "eslint src/app src/server src/components src/lib/client.ts src/lib/content.ts src/lib/i18n.ts src/lib/mail-copy.ts scripts test next.config.ts",
+    "test:i18n": "node --experimental-strip-types --test test/i18n.mjs",
+    "check:firebase": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types scripts/check-firebase.ts",
+    "test:integration": "node --conditions=react-server --experimental-strip-types --test --test-concurrency=1 test/integration.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.4.0",
     "framer-motion": "^13.1.0",
     "lucide-react": "^1.31.0",
-    "next": "16.3.1",
+    "next": "^16.3.5",
+    "nodemailer": "^10.0.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.6.0",
+    "zod": "^4.6.4",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -27,7 +34,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.1",
+    "eslint-config-next": "^16.3.5",
     "gh-pages": "^6.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"

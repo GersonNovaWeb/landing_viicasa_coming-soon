@@ -1,0 +1,13 @@
+'use client';
+import {useLanguage,LanguageSelector} from '@/components/language';
+
+import {useEffect,useState} from 'react';
+import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import {LockKeyhole} from 'lucide-react';
+import {api,googleLogin,type Availability} from '@/lib/client';
+export function LoginPanel({admin=false,message=''}:{admin?:boolean,message?:string}){const {t} = useLanguage();const router=useRouter(),[ready,setReady]=useState(false),[accepted,setAccepted]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(message);
+useEffect(()=>{api<Availability>('config').then(c=>setReady(admin?c.auth:c.google)).catch(()=>setError('El acceso está temporalmente no disponible.'));},[admin]);
+async function login(){setBusy(true);setError('');try{const user=await googleLogin();if(admin&&!user.admin){setError('Esta cuenta no tiene acceso al panel de administración.');return;}router.refresh();}catch(e){setError(e instanceof Error?e.message:t('No se pudo iniciar sesión.'));}finally{setBusy(false);}}
+return <section className="login-panel"><LanguageSelector/><LockKeyhole size={28}/><p className="eyebrow">{admin?t('ACCESO PRIVADO'):t('TU ESPACIO VIICASA')}</p><h1>{admin?t('Administración'):t('Bienvenido a casa.')}</h1><p>{admin?t('Inicia sesión con la cuenta de Google autorizada para consultar registros y solicitudes.'):t('Accede con Google para identificarte y registrar tus intereses.')}</p><label className="check-label"><input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)}/><span>{t("He leído y acepto el ")}<Link href="/privacidad">{t("aviso de privacidad")}</Link>.</span></label><button className="button google-button" onClick={login} disabled={busy||!accepted||!ready}>{busy?t('Verificando…'):t('Continuar con Google')}</button>{!ready&&<p className="notice">{t("El acceso está pendiente de activación.")}</p>}{error&&<p role="alert" className="error-message">{t(error)}</p>}<Link className="text-link" href="/">{t("Volver al inicio")}</Link></section>}
+export function LogoutButton(){const {t} = useLanguage();const router=useRouter();const[error,setError]=useState('');return <><button className="text-link" onClick={async()=>{try{await api('session',undefined,'DELETE');router.refresh();}catch{setError('No se pudo cerrar la sesión. Inténtalo de nuevo.');}}}>{t("Cerrar sesión")}</button>{error&&<p role="alert">{t(error)}</p>}</>}
