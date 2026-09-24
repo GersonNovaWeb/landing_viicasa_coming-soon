@@ -25,7 +25,7 @@ Rutas: `/`, `/viilife`, `/viiconcierge`, `/shop`, `/cuenta`, `/admin`, `/privaci
 
 ## Idiomas
 
-Selector Español / English en la cabecera, acceso administrativo y dashboard; también disponible en móvil. Español es el idioma predeterminado. La cookie de preferencia `viicasa_language` dura un año, es exclusiva del sitio y no contiene identidad ni permisos. El servidor lee esa preferencia para renderizar contenido y metadatos coherentes; cambiar de idioma refresca el contenido sin navegar a otra ruta ni reiniciar los campos del formulario.
+Selector Español / English en la cabecera, acceso administrativo y dashboard; también disponible en móvil. Inglés es el idioma predeterminado para nuevas visitas; se conserva la elección previa de español o inglés. La cookie de preferencia `viicasa_language` dura un año, es exclusiva del sitio y no contiene identidad ni permisos. El servidor lee esa preferencia para renderizar contenido y metadatos coherentes; cambiar de idioma refresca el contenido sin navegar a otra ruta ni reiniciar los campos del formulario.
 
 Las traducciones están centralizadas en `src/lib/i18n.ts`; `src/components/language.tsx` y `src/server/locale.ts` comparten el idioma. Los nombres, correos y notas del cliente no se traducen. Las fechas del dashboard usan la configuración regional seleccionada. Los registros guardan `locale` (`es` por defecto para compatibilidad) y las futuras confirmaciones SMTP usan ese idioma; SMTP continúa deshabilitado hasta su configuración.
 
@@ -45,6 +45,8 @@ Las traducciones están centralizadas en `src/lib/i18n.ts`; `src/components/lang
 No introducir usuarios de prueba en producción sin autorización. El diagnóstico de conexión no prueba el popup Google, correo, permisos de escritura ni Hostinger.
 
 ## Datos y protección
+
+En Clientes interesados, el administrador puede borrar un contacto tras confirmar su nombre/correo. La eliminación es definitiva: borra `cs_contacts` y su confirmación pendiente en `cs_pending` en una transacción, y registra la operación en `cs_audit`. No elimina la cuenta de acceso ni las solicitudes de servicios. La API exige sesión administrativa, origen válido y confirmación explícita; no hay borrado masivo. Un nuevo registro voluntario puede volver a agregar el contacto.
 
 | Colección | Uso |
 | --- | --- |

@@ -1,9 +1,13 @@
 export type Locale = 'es' | 'en';
 export const localeCookie = 'viicasa_language';
-export const normalizeLocale = (value?: string): Locale => value === 'en' ? 'en' : 'es';
+export const normalizeLocale = (value?: string): Locale => value === 'es' ? 'es' : 'en';
 
 // Spanish is the source language. Brand names and customer-entered content stay unchanged.
 export const english: Record<string, string> = {
+  'Borrar interesado': 'Delete contact', 'Borrando…': 'Deleting…',
+  '¿Borrar a este interesado de la lista?': 'Delete this contact from the list?',
+  'Esta acción no se puede deshacer. Se eliminarán sus intereses y cualquier confirmación pendiente. Su cuenta y sus solicitudes de servicio se conservarán.': 'This cannot be undone. Their interests and any pending confirmation will be deleted. Their account and service requests will be kept.',
+  'No se pudo borrar. Inténtalo de nuevo.': 'Could not delete the contact. Please try again.',
   'Idioma': 'Language', 'Principal': 'Main navigation', 'Información': 'Information',
   'VIICASA inicio': 'VIICASA home', 'Mi cuenta': 'My account', 'MI CUENTA': 'MY ACCOUNT',
   'Acceso anticipado': 'Early access', 'Cerrar menú': 'Close menu', 'Abrir menú': 'Open menu',

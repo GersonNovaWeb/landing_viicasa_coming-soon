@@ -1,4 +1,9 @@
 @import "tailwindcss";
+
+.contact-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
+.contact-actions .delete-contact{color:#a13c2f;min-height:44px}
+.contact-actions .delete-contact:hover{color:#75281e;text-decoration:underline}
+.contact-actions .error-message{max-width:260px;white-space:normal}
 .language-selector{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;color:var(--ink);font-size:.8rem;white-space:nowrap}
 .language-selector select{max-width:115px;min-height:40px;border:1px solid var(--line);background:transparent;border-radius:2px;padding:6px 8px;color:inherit;cursor:pointer}
 .language-selector select:disabled{cursor:wait;opacity:.6}

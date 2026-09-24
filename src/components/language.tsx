@@ -4,7 +4,7 @@ import {useRouter} from 'next/navigation';
 import {Globe2} from 'lucide-react';
 import {localeCookie, normalizeLocale, translator, type Locale} from '@/lib/i18n';
 
-const LanguageContext = createContext<Locale>('es');
+const LanguageContext = createContext<Locale>('en');
 export function LanguageProvider({locale, children}: {locale: Locale; children: React.ReactNode}) {
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   return <LanguageContext.Provider value={locale}>{children}</LanguageContext.Provider>;

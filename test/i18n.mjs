@@ -4,9 +4,10 @@ import {english, translator, normalizeLocale} from '../src/lib/i18n.ts';
 import {services} from '../src/lib/content.ts';
 import {confirmationMail} from '../src/lib/mail-copy.ts';
 
-test('only es/en preferences are accepted; Spanish is the default', () => {
-  for(const value of [undefined,'','fr','EN','<script>']) assert.equal(normalizeLocale(value),'es');
+test('only es/en preferences are accepted; English is the default', () => {
+  for(const value of [undefined,'','fr','EN','<script>']) assert.equal(normalizeLocale(value),'en');
   assert.equal(normalizeLocale('en'),'en');
+  assert.equal(normalizeLocale('es'),'es');
 });
 test('all public service descriptions have English translations', () => {
   for(const service of services) for(const text of [service.cardTitle,service.short,service.imageAlt,service.intro,service.description,...service.items.flat()]) assert.ok(english[text],text);
@@ -24,7 +25,7 @@ test('confirmation email copy uses the submitted language without altering the l
   assert.equal(confirmationMail('es',url).subject,'Confirma tu correo · VIICASA');
 });
 // HTTP checks only: no authentication, customer records or production writes.
-const base='http://127.0.0.1:3010';
+const base=process.env.I18N_TEST_BASE||'http://127.0.0.1:3010';
 for(const [path,es,en] of [
   ['/','Algo extraordinario','Something extraordinary'],
   ['/viilife','Menos pendientes en casa.','Less to do at home.'],
@@ -45,7 +46,13 @@ for(const [path,es,en] of [
     assert.ok(rendered.includes(locale==='en'?'Language':'Idioma'),'Language selector');
   }
 });
-test('an unsupported cookie safely renders Spanish',async()=>{
+test('an unsupported cookie safely renders English',async()=>{
   const r=await fetch(base,{headers:{cookie:'viicasa_language=fr'}});
-  assert.ok((await r.text()).includes('lang="es"'));
+  assert.ok((await r.text()).includes('lang="en"'));
+});
+test('a first visit without a language cookie renders English',async()=>{
+  const r=await fetch(base);
+  const html=(await r.text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  assert.ok(html.includes('lang="en"'));
+  assert.ok(html.includes('Something extraordinary'));
 });

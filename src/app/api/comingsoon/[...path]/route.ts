@@ -50,6 +50,19 @@ async function handle(request:Request,context:Context){try{
     }
     const collection=({accounts:'cs_accounts',contacts:'cs_contacts',inquiries:'cs_inquiries'} as Record<string,string>)[path[1]];
     if(!collection)throw new AppError(404,'No encontrado.');
+    if(method==='DELETE'&&path.length===3&&path[1]==='contacts'){
+      const id=z.string().regex(/^[a-f0-9]{64}$/).parse(path[2]);
+      z.object({confirm:z.literal(true)}).strict().parse(await jsonBody(request));
+      const ref=db.collection('cs_contacts').doc(id);
+      await db.runTransaction(async tx=>{
+        if(!(await tx.get(ref)).exists)throw new AppError(404,'No encontrado.');
+        tx.delete(ref);
+        // Invalidate old confirmation links so they cannot recreate this contact.
+        tx.delete(db.collection('cs_pending').doc(id));
+        tx.create(db.collection('cs_audit').doc(),{actor_uid:user.uid,action:'contact.delete',collection,record_id:id,created_at:timestamp()});
+      });
+      return response({ok:true});
+    }
     if(method==='GET'&&path.length===2){
       const params=new URL(request.url).searchParams,cursor=params.get('cursor');let query=db.collection(collection).orderBy('created_at','desc').orderBy('__name__','desc').limit(51);
       if(cursor){let c;try{c=z.tuple([z.iso.datetime(),z.string().regex(/^[A-Za-z0-9_-]{1,128}$/)]).parse(JSON.parse(Buffer.from(cursor,'base64url').toString()));}catch{throw new AppError(400,'Paginación inválida.');}query=query.startAfter(...c);}
