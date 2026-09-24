@@ -46,6 +46,10 @@ No introducir usuarios de prueba en producción sin autorización. El diagnósti
 
 ## Datos y protección
 
+Con Google, el formulario completa y bloquea únicamente el correo verificado. El visitante debe escribir su nombre completo (se conserva si ya lo escribió antes del acceso); no se usa automáticamente el nombre de Google. El nombre indicado se guarda con el interesado y sus solicitudes, sin cambiar la identidad de acceso.
+
+El formulario de interesados prioriza nombre y correo, con Google como alternativa opcional desplegable. El registro por correo no crea una cuenta con contraseña y aparece en Clientes interesados después de confirmar el enlace. Requiere SMTP configurado y registro público habilitado; si falta SMTP se muestra el aviso y no se finge guardar el contacto. Mi cuenta ofrece un acceso al formulario sin Google; el acceso administrativo sigue protegido con Google.
+
 En Clientes interesados, el administrador puede borrar un contacto tras confirmar su nombre/correo. La eliminación es definitiva: borra `cs_contacts` y su confirmación pendiente en `cs_pending` en una transacción, y registra la operación en `cs_audit`. No elimina la cuenta de acceso ni las solicitudes de servicios. La API exige sesión administrativa, origen válido y confirmación explícita; no hay borrado masivo. Un nuevo registro voluntario puede volver a agregar el contacto.
 
 | Colección | Uso |

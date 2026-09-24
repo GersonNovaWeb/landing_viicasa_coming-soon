@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+.email-registration-intro h3{font-size:1.55rem;margin-bottom:10px}
+.email-registration-intro p,.optional-google p{font-size:.85rem;line-height:1.6}
+.optional-google{border-top:1px solid var(--line);padding-top:18px}
+.optional-google summary{cursor:pointer;font-size:.875rem;color:var(--muted);padding-block:8px}
+.optional-google[open] summary{margin-bottom:10px}
+.optional-google .google-button{margin-top:16px}
+
 .contact-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
 .contact-actions .delete-contact{color:#a13c2f;min-height:44px}
 .contact-actions .delete-contact:hover{color:#75281e;text-decoration:underline}

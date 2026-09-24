@@ -4,6 +4,16 @@ export const normalizeLocale = (value?: string): Locale => value === 'es' ? 'es'
 
 // Spanish is the source language. Brand names and customer-entered content stay unchanged.
 export const english: Record<string, string> = {
+  'Escribe tu nombre completo para continuar.': 'Enter your full name to continue.',
+  'Tu correo de Google ya está verificado. Escribe tu nombre completo y envía el formulario para registrar tu interés.': 'Your Google email is verified. Enter your full name and submit the form to register your interest.',
+  'Google completará tu correo automáticamente. Tú escribes tu nombre y envías el formulario para registrar tu interés.': 'Google will fill in your email automatically. Enter your name and submit the form to register your interest.',
+  'Regístrate con tu correo': 'Register with your email',
+  'Completa tus datos y confirma el enlace que recibirás por correo. No necesitas una cuenta de Google ni crear una contraseña.': 'Enter your details and confirm the link sent to your email. No Google account or password is needed.',
+  'Prefiero usar Google (opcional)': 'I prefer to use Google (optional)',
+  'Google solo sirve para verificar tu correo y completar tus datos. También debes enviar el formulario para registrar tu interés.': 'Google only verifies your email and fills in your details. You still need to submit the form to register your interest.',
+  'El registro por correo aún no está disponible. Puedes volver más tarde o usar la opción de Google que aparece abajo.': 'Email registration is not available yet. Please check back later or use the Google option below.',
+  'Registrarme solo con mi correo': 'Register with email only',
+  'Para unirte a la lista de interesados no necesitas iniciar sesión.': 'You do not need to sign in to join the interest list.',
   'Borrar interesado': 'Delete contact', 'Borrando…': 'Deleting…',
   '¿Borrar a este interesado de la lista?': 'Delete this contact from the list?',
   'Esta acción no se puede deshacer. Se eliminarán sus intereses y cualquier confirmación pendiente. Su cuenta y sus solicitudes de servicio se conservarán.': 'This cannot be undone. Their interests and any pending confirmation will be deleted. Their account and service requests will be kept.',

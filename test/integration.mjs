@@ -80,4 +80,15 @@ test('admin deletion removes only the contact and pending confirmation, updates 
  assert.equal((await req(path,{confirm:true},admin,'DELETE')).status,404);
  assert.equal((await db.collection('cs_audit').where('record_id','==',id).get()).size,1);
 });
+test('Google registration requires a supplied name and saves it with the verified Google email',async()=>{
+ const address=`named-${randomUUID()}@example.com`,person=await google(address);
+ const data={...input,email:address};
+ for(const name of ['', '   '])assert.equal((await req('register',{...data,name},person.cookie)).status,400);
+ assert.equal((await db.collection('cs_contacts').doc(hash(address)).get()).exists,false);
+ assert.equal((await req('register',{...data,name:'  Nombre elegido por cliente  '},person.cookie)).status,200);
+ const saved=(await db.collection('cs_contacts').doc(hash(address)).get()).data();
+ assert.equal(saved.name,'Nombre elegido por cliente');assert.equal(saved.email,address);assert.equal(saved.uid,person.user.uid);
+ const list=(await req('admin/contacts',undefined,admin)).data.rows;
+ assert.ok(list.some(row=>row.id===hash(address)&&row.name==='Nombre elegido por cliente'&&row.email===address));
+});
 test('live mode refuses emulator environment',()=>{process.env.FIREBASE_MODE='live';assert.throws(configuration,/mezclar/);process.env.FIREBASE_MODE='emulator';});

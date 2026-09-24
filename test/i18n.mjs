@@ -56,3 +56,26 @@ test('a first visit without a language cookie renders English',async()=>{
   assert.ok(html.includes('lang="en"'));
   assert.ok(html.includes('Something extraordinary'));
 });
+
+test('email forms are primary and Google is a collapsed optional alternative in both languages',async()=>{
+ for(const locale of ['en','es'])for(const path of ['/','/viilife','/viiconcierge','/shop']){
+  const response=await fetch(base+path,{headers:{cookie:`viicasa_language=${locale}`}});
+  assert.equal(response.status,200);
+  const html=(await response.text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  const t=translator(locale),formStart=html.indexOf('class="interest-form"');
+  assert.ok(formStart>=0,path);
+  assert.ok(html.includes(t('Regístrate con tu correo')),path);
+  const submit=html.indexOf('submit-button',formStart),google=html.indexOf('class="optional-google"',formStart);
+  assert.ok(submit>formStart&&google>submit,`${path}: email submit before Google`);
+  assert.ok(html.includes(`<details class="optional-google"><summary>${t('Prefiero usar Google (opcional)')}</summary>`));
+ }
+});
+test('customer account offers email registration but admin sign-in stays protected',async()=>{
+ for(const locale of ['en','es']){
+  const options={headers:{cookie:`viicasa_language=${locale}`}};
+  const account=(await (await fetch(base+'/cuenta',options)).text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  const admin=(await (await fetch(base+'/admin',options)).text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  const label=translator(locale)('Registrarme solo con mi correo');
+  assert.ok(account.includes(label));assert.equal(admin.includes(label),false);
+ }
+});
