@@ -65,6 +65,8 @@ test('email forms are primary and Google is a collapsed optional alternative in 
   const t=translator(locale),formStart=html.indexOf('class="interest-form"');
   assert.ok(formStart>=0,path);
   assert.ok(html.includes(t('Regístrate con tu correo')),path);
+  assert.ok(html.includes(t('Deja tu nombre y correo para registrar tu interés. No necesitas Google, contraseña ni confirmar un correo.')));
+  assert.equal(html.includes(t('Te enviaremos un enlace para confirmar tu correo.')),false);
   const submit=html.indexOf('submit-button',formStart),google=html.indexOf('class="optional-google"',formStart);
   assert.ok(submit>formStart&&google>submit,`${path}: email submit before Google`);
   assert.ok(html.includes(`<details class="optional-google"><summary>${t('Prefiero usar Google (opcional)')}</summary>`));

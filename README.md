@@ -2,7 +2,13 @@
 
 Implementación de **Immersive Luxury** con Next.js, Firebase Authentication y Firestore. Proyecto independiente del backend de la plataforma completa. Destino previsto: aplicación Node.js en Hostinger para `viicasa.com`.
 
-## Estado — 13 septiembre 2026
+## Actualización — registro directo (25 septiembre 2026)
+
+El registro público ya no exige Google ni SMTP. Al enviar el formulario, nombre, correo e intereses se guardan inmediatamente en `cs_contacts`, con `verified: false` si no hay sesión válida de Google. No se envía correo ni se crea una cuenta de acceso. El administrador ve el estado de verificación. Los enlaces de confirmación antiguos siguen siendo compatibles.
+
+Mantener Firebase real, `SITE_URL` correcto, `REGISTRATION_ENABLED=true` y privacidad aprobada. `MAIL_MODE=disabled` es suficiente; las variables SMTP no se utilizan para registrar interesados. No subir contraseñas al repositorio. Este cambio requiere desplegar el nuevo código; no modifica Hostinger ni datos reales automáticamente.
+
+## Estado histórico — 13 septiembre 2026
 
 Implementado y probado localmente: landing, páginas ViiLife/ViiConcierge/Shop, registro con Google, intereses, solicitudes, confirmación por correo y dashboard protegido con seguimiento. El envío SMTP y Google real requieren configuración y pruebas externas; no se han validado en producción. Shop es una página de presentación, no una tienda con pagos.
 
@@ -40,7 +46,7 @@ Las traducciones están centralizadas en `src/lib/i18n.ts`; `src/components/lang
 5. Revisar las reglas actuales antes de aplicar `firestore.rules` o los índices. El archivo incluido deniega acceso directo desde el navegador a toda la base. **No desplegarlo sobre otras aplicaciones sin fusionar sus políticas.** Firebase Admin accede mediante IAM.
 6. Ajustar `FIREBASE_MODE=live`, `NEXT_PUBLIC_FIREBASE_MODE=live`, proyecto real y `SITE_URL` con origen HTTPS exacto; eliminar variables de emuladores. `npm run check:firebase` realiza solo lecturas y no imprime usuarios.
 7. Completar y aprobar el aviso de privacidad: responsable, contacto, finalidades, conservación y procedimiento para ejercer derechos. La página actual es un borrador. Establecer `PRIVACY_CONTACT_EMAIL`; habilitar `PRIVACY_APPROVED=true` y `REGISTRATION_ENABLED=true` solo después de aprobar el texto.
-8. Para registro sin Google, configurar SMTP y remitente, `MAIL_MODE=smtp`, y verificar entrega real. Sin SMTP, solo se envían registros con sesión Google verificada.
+8. El registro directo sin Google no requiere SMTP. Probar una entrada ficticia autorizada y verificar nombre, correo y etiqueta de correo no verificado en Clientes interesados.
 
 No introducir usuarios de prueba en producción sin autorización. El diagnóstico de conexión no prueba el popup Google, correo, permisos de escritura ni Hostinger.
 
@@ -48,20 +54,20 @@ No introducir usuarios de prueba en producción sin autorización. El diagnósti
 
 Con Google, el formulario completa y bloquea únicamente el correo verificado. El visitante debe escribir su nombre completo (se conserva si ya lo escribió antes del acceso); no se usa automáticamente el nombre de Google. El nombre indicado se guarda con el interesado y sus solicitudes, sin cambiar la identidad de acceso.
 
-El formulario de interesados prioriza nombre y correo, con Google como alternativa opcional desplegable. El registro por correo no crea una cuenta con contraseña y aparece en Clientes interesados después de confirmar el enlace. Requiere SMTP configurado y registro público habilitado; si falta SMTP se muestra el aviso y no se finge guardar el contacto. Mi cuenta ofrece un acceso al formulario sin Google; el acceso administrativo sigue protegido con Google.
+El formulario de interesados prioriza nombre y correo, con Google como alternativa opcional desplegable. El registro directo aparece inmediatamente en Clientes interesados, sin SMTP ni contraseña. Los envíos anónimos no sobrescriben contactos existentes, preferencias o seguimiento; las consultas nuevas se guardan por separado como no verificadas. La API responde igual para altas y duplicados, sin revelar cuentas. Un registro posterior con Google puede verificar el contacto, pero no hereda intereses ni consentimiento de una entrada no verificada. Mi cuenta ofrece un acceso al formulario sin Google; el administrador sigue protegido con Google.
 
 En Clientes interesados, el administrador puede borrar un contacto tras confirmar su nombre/correo. La eliminación es definitiva: borra `cs_contacts` y su confirmación pendiente en `cs_pending` en una transacción, y registra la operación en `cs_audit`. No elimina la cuenta de acceso ni las solicitudes de servicios. La API exige sesión administrativa, origen válido y confirmación explícita; no hay borrado masivo. Un nuevo registro voluntario puede volver a agregar el contacto.
 
 | Colección | Uso |
 | --- | --- |
 | `cs_accounts` | Accesos con Google, no implica suscripción |
-| `cs_contacts` | Contactos verificados, intereses y consentimiento |
+| `cs_contacts` | Contactos, estado de verificación, intereses y consentimiento |
 | `cs_inquiries` | Solicitudes, estado y notas privadas |
 | `cs_pending` | Confirmaciones pendientes, hash del token y caducidad |
 | `cs_rate_limits` | Contadores con expiración |
 | `cs_audit` | Cambios de seguimiento del administrador |
 
-Sesiones en cookie HttpOnly, SameSite=Lax y Secure bajo HTTPS. El servidor verifica proveedor Google, correo verificado, revocación y origen de escrituras. Las respuestas privadas no se cachean. Consentimientos no preseleccionados; Google no suscribe automáticamente. Los registros anónimos solo se verifican al confirmar correo. El dashboard no usa datos ficticios.
+Sesiones en cookie HttpOnly, SameSite=Lax y Secure bajo HTTPS. El servidor verifica proveedor Google, correo verificado, revocación y origen de escrituras. Las respuestas privadas no se cachean. Consentimientos no preseleccionados; Google no suscribe automáticamente. Los registros anónimos se guardan como no verificados y nunca obtienen permisos de cuenta. Se mantienen validación, honeypot y límites de solicitudes. El dashboard no usa datos ficticios.
 
 Confirmaciones: vencen en 24 horas, consumo transaccional por POST, no por abrir el enlace. `cleanup_at` solicita TTL de pendientes a las 48 horas; `expires_at` aplica TTL a contadores. Hay que activar/verificar esas políticas: no garantizan borrado inmediato; documentos antiguos sin el campo requieren revisión. Falta acordar retención de contactos, solicitudes y auditoría.
 
@@ -79,7 +85,7 @@ npm run test:integration
 
 Firebase usa puertos 8086/9096. Next de prueba usa `127.0.0.1:3012`, salida `.next-test`, registro abierto **solo para datos ficticios**, SMTP desactivado y sin credencial de producción. Google es simulado por el emulador, no una cuenta externa. Sin exportación, se pierden datos al reiniciar emuladores.
 
-Cobertura: rutas, identidad, permisos, falsificación, consentimiento, CSRF, tamaño de solicitudes, deduplicación concurrente, notas, baja, acceso directo bloqueado, confirmación atómica, errores de correo, paginación y revocación.
+Cobertura: rutas, identidad, permisos, falsificación, consentimiento, CSRF, tamaño de solicitudes, registro directo sin SMTP, protección de contactos ante envíos anónimos, deduplicación concurrente, notas, baja, acceso directo bloqueado, confirmación antigua atómica, paginación y revocación.
 
 ```sh
 npm run lint
@@ -96,7 +102,7 @@ Pruebas de credenciales sin conexión ni claves reales:
 
 Esta versión **requiere servidor Node.js**; no funciona como exportación estática en GitHub Pages. Se retiró el comando antiguo de publicación de `out`. No se modificaron DNS, WordPress ni el repositorio remoto.
 
-Primero desplegar en un dominio temporal aprobado y probar con Firebase/SMTP reales: Google, administrador y no administrador, escritura/lectura, solicitudes, confirmación de correo, baja y cierre de sesión. Confirmar navegación móvil y textos con el cliente.
+Al desplegar, probar con Firebase real: registro directo sin Google ni SMTP, Google opcional, administrador y no administrador, escritura/lectura, solicitudes, baja y cierre de sesión. Comprobar que los registros directos aparecen con nombre, correo y estado no verificado en el dashboard. Confirmar navegación móvil y textos con el cliente.
 
 En Linux de Hostinger, construir con variables públicas definitivas: `npm ci`, `npm run build`. Usar el flujo Node.js/Next.js del panel o `npm start`, según permita la cuenta. No subir `node_modules` de Windows.
 

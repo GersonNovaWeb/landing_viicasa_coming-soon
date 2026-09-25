@@ -4,6 +4,12 @@ export const normalizeLocale = (value?: string): Locale => value === 'es' ? 'es'
 
 // Spanish is the source language. Brand names and customer-entered content stay unchanged.
 export const english: Record<string, string> = {
+  'Deja tu nombre y correo para registrar tu interés. No necesitas Google, contraseña ni confirmar un correo.': 'Leave your name and email to register your interest. No Google account, password or email confirmation is needed.',
+  'Revisa que tu correo esté bien escrito. Tus datos se guardarán al enviar el formulario.': 'Check that your email is correct. Your details will be saved when you submit the form.',
+  'Recibimos tus datos. Gracias por tu interés en VIICASA.': 'We received your details. Thank you for your interest in VIICASA.',
+  'Interesados registrados y preferencias de comunicación.': 'Registered interests and communication preferences.',
+  'Correo verificado': 'Verified email', 'Correo no verificado': 'Unverified email',
+  'La información se almacena en Firebase y se consulta desde el panel privado de VIICASA. El formulario guarda tus datos sin exigir Google ni enviar un correo de confirmación. Si no utilizas Google, tu dirección queda marcada como no verificada.': 'Information is stored in Firebase and accessed through VIICASA’s private dashboard. The form saves your details without requiring Google or sending a confirmation email. Without Google, your email address is marked as unverified.',
   'Escribe tu nombre completo para continuar.': 'Enter your full name to continue.',
   'Tu correo de Google ya está verificado. Escribe tu nombre completo y envía el formulario para registrar tu interés.': 'Your Google email is verified. Enter your full name and submit the form to register your interest.',
   'Google completará tu correo automáticamente. Tú escribes tu nombre y envías el formulario para registrar tu interés.': 'Google will fill in your email automatically. Enter your name and submit the form to register your interest.',

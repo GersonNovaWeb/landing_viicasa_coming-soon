@@ -26,7 +26,63 @@ test('concurrent subscriptions deduplicate contact and preserve multiple interes
 test('service inquiry persists once on retry and admin saves followup',async()=>{const data={...input,kind:'inquiry',source:'viilife',message:'Quiero conocer el servicio',marketing:false};assert.equal((await req('register',data,visitor)).status,200);assert.equal((await req('register',data,visitor)).status,200);const id=hash(`${hash(email)}:viilife:${data.message}`),row=(await db.collection('cs_inquiries').doc(id).get()).data();assert.equal(row.message,data.message);assert.equal((await req(`admin/inquiries/${id}`,{status:'contacted',notes:'Nota privada'},visitor,'PATCH')).status,403);assert.equal((await req(`admin/inquiries/${id}`,{status:'contacted',notes:'Nota privada'},admin,'PATCH')).status,200);assert.equal((await db.collection('cs_inquiries').doc(id).get()).data().notes,'Nota privada');});
 test('unsubscribe is effective and direct Firestore access is denied',async()=>{assert.equal((await req('preferences',undefined,visitor,'DELETE')).status,200);assert.equal((await db.collection('cs_contacts').doc(hash(email)).get()).data().marketing,false);const r=await fetch('http://127.0.0.1:8086/v1/projects/demo-viicasa-comingsoon/databases/(default)/documents/cs_contacts');assert.equal(r.status,403);});
 test('email confirmation is one-time, atomic and does not create a Google account',async()=>{const address=`email-${randomUUID()}@example.com`,id=hash(address),secret=randomBytes(32).toString('base64url');await db.collection('cs_pending').doc(id).set({...input,email:address,token_hash:hash(secret),requested_at:new Date().toISOString(),expires_at:new Date(Date.now()+60000).toISOString()});const r=await Promise.all([req('confirm',{token:`${id}.${secret}`}),req('confirm',{token:`${id}.${secret}`})]);r.forEach(x=>assert.equal(x.status,200,JSON.stringify(x.data)));const contact=(await db.collection('cs_contacts').doc(id).get()).data();assert.equal(contact.verified,true);assert.equal(contact.uid,null);assert.equal((await req('confirm',{token:`${id}.${'x'.repeat(43)}`})).status,400);await db.collection('cs_contacts').doc(id).update({marketing:false});await req('confirm',{token:`${id}.${secret}`});assert.equal((await db.collection('cs_contacts').doc(id).get()).data().marketing,false);});
-test('SMTP disabled never pretends an email has been sent',async()=>{const r=await req('register',{...input,email:`mail-${randomUUID()}@example.com`});assert.equal(r.status,503);});
+test('direct registration works without Google or SMTP and immediately appears in the admin list',async()=>{
+ const address=`direct-${randomUUID()}@example.com`,id=hash(address);
+ assert.equal((await req('config')).data.email,true);
+ const r=await req('register',{...input,name:'Contacto sin Google',email:address,locale:'en'});
+ assert.equal(r.status,200);assert.equal(r.data.state,'saved');assert.equal(r.cookie,undefined);
+ const row=(await db.collection('cs_contacts').doc(id).get()).data();
+ assert.equal(row.name,'Contacto sin Google');assert.equal(row.email,address);assert.equal(row.verified,false);assert.equal(row.uid,null);assert.equal(row.locale,'en');
+ assert.equal((await db.collection('cs_pending').doc(id).get()).exists,false);
+ assert.equal((await db.collection('cs_accounts').where('email','==',address).get()).size,0);
+ assert.ok((await req('admin/contacts',undefined,admin)).data.rows.some(row=>row.id===id&&row.verified===false));
+});
+test('direct submissions deduplicate without overwriting names, consent or admin follow-up',async()=>{
+ const address=`duplicate-${randomUUID()}@example.com`,id=hash(address),data={...input,email:address};
+ const results=await Promise.all([req('register',data),req('register',data)]);
+ results.forEach(r=>assert.equal(r.status,200));
+ await db.collection('cs_contacts').doc(id).update({notes:'Private followup',status:'contacted',marketing:false});
+ const before=(await db.collection('cs_contacts').doc(id).get()).data();
+ assert.equal((await req('register',{...data,name:'Untrusted change',interests:['shop']})).status,200);
+ assert.deepEqual((await db.collection('cs_contacts').doc(id).get()).data(),before);
+});
+test('anonymous submissions cannot overwrite a verified contact or resubscribe them',async()=>{
+ const address=`protected-${randomUUID()}@example.com`,person=await google(address),id=hash(address);
+ assert.equal((await req('register',{...input,email:address},person.cookie)).status,200);
+ assert.equal((await req('preferences',undefined,person.cookie,'DELETE')).status,200);
+ const before=(await db.collection('cs_contacts').doc(id).get()).data();
+ assert.equal((await req('register',{...input,email:address,name:'Impersonation',interests:['shop']})).status,200);
+ assert.deepEqual((await db.collection('cs_contacts').doc(id).get()).data(),before);
+});
+test('direct service inquiries are recorded as unverified and Google can later verify its own submission',async()=>{
+ const address=`inquiry-${randomUUID()}@example.com`,id=hash(address);
+ const anonymous={...input,email:address,kind:'inquiry',source:'viilife',message:'Consulta directa',marketing:true,phone:'5551112222'};
+ const inquiryId=hash(`${id}:viilife:${anonymous.message}`);
+ assert.equal((await req('register',anonymous)).status,200);
+ assert.equal((await db.collection('cs_inquiries').doc(inquiryId).get()).data().verified,false);
+ const person=await google(address);
+ const verified={...anonymous,name:'Nombre verificado',interests:['shop'],marketing:false,phone:''};
+ assert.equal((await req('register',verified,person.cookie)).status,200);
+ const contact=(await db.collection('cs_contacts').doc(id).get()).data();
+ assert.equal(contact.verified,true);assert.equal(contact.uid,person.user.uid);assert.equal(contact.marketing,false);assert.equal(contact.phone,'');assert.deepEqual(contact.interests,['shop']);
+ assert.equal((await db.collection('cs_inquiries').doc(inquiryId).get()).data().verified,true);
+});
+test('anonymous registration still enforces consent, validation, honeypot, origin and rate limits',async()=>{
+ const address=`safety-${randomUUID()}@example.com`,data={...input,email:address};
+ for(const changed of [{name:''},{email:'invalid'},{privacy:false},{marketing:false},{website:'spam'},{verified:true},{uid:'forged'}]){
+  assert.equal((await req('register',{...data,...changed})).status,400);
+ }
+ assert.equal((await req('register',data,undefined,'POST','https://example.net')).status,403);
+ assert.equal((await db.collection('cs_contacts').doc(hash(address)).get()).exists,false);
+ for(let i=0;i<4;i++)assert.equal((await req('register',data)).status,200);
+ assert.equal((await req('register',data)).status,429);
+});
+test('a stale session does not block public capture or confer verified status',async()=>{
+ const address=`stale-${randomUUID()}@example.com`;
+ assert.equal((await req('register',{...input,email:address},'viicasa_session=invalid')).status,200);
+ assert.equal((await db.collection('cs_contacts').doc(hash(address)).get()).data().verified,false);
+ assert.equal((await req('admin/contacts',undefined,'viicasa_session=invalid')).status,401);
+});
 test('invalid cursors are rejected and authorized lists are paginated',async()=>{assert.equal((await req('admin/contacts?cursor=broken',undefined,admin)).status,400);const r=await req('admin/accounts',undefined,admin);assert.equal(r.status,200);assert.ok(Array.isArray(r.data.rows));assert.ok(r.data.rows.length<=50);});
 test('disabled account invalidates existing server session',async()=>{await auth.updateUser(visitorUid,{disabled:true});assert.equal((await req('session',undefined,visitor)).status,401);await auth.updateUser(visitorUid,{disabled:false});});
 

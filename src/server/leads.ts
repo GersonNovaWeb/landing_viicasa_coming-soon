@@ -16,16 +16,32 @@ export async function saveProfile(user:Person){const {db}=firebase(),ref=db.coll
 export async function saveVerified(data:Registration,uid:string|null){
   const{db}=firebase();return db.runTransaction(tx=>persistVerified(tx,data,uid));
 }
+// Public interest capture is not authentication. Never overwrite an existing
+// contact, consent, follow-up or verified identity using an unverified email.
+export async function saveUnverified(data:Registration){
+  const{db}=firebase(),key=digest(data.email),ref=db.collection('cs_contacts').doc(key);
+  await db.runTransaction(async tx=>{
+    const previous=await tx.get(ref);
+    const inquiry=data.kind==='inquiry'?db.collection('cs_inquiries').doc(digest(`${key}:${data.source}:${data.message}`)):null;
+    const old=inquiry?await tx.get(inquiry):null;
+    const created=timestamp();
+    if(!previous.exists)tx.create(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone,uid:null,interests:data.interests,verified:false,
+      marketing:data.marketing,marketing_consent_at:data.marketing?created:null,privacy_version:consentVersion,created_at:created,updated_at:created,status:'new',notes:'',source:data.source});
+    if(inquiry&&!old?.exists)tx.create(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,
+      verified:false,created_at:created,updated_at:created,status:'new',notes:'',privacy_version:consentVersion});
+  });
+}
 async function persistVerified(tx:Transaction,data:Registration,uid:string|null){
     const{db}=firebase(),key=digest(data.email),ref=db.collection('cs_contacts').doc(key),created=timestamp();
     const previous=(await tx.get(ref)).data();
+    const trusted=previous?.verified===true?previous:undefined;
     const inquiry=data.kind==='inquiry'?db.collection('cs_inquiries').doc(digest(`${key}:${data.source}:${data.message}`)):null;
     const old=inquiry?(await tx.get(inquiry)).data():null;
-    const interests=[...new Set([...(previous?.interests||[]),...data.interests])];
-    tx.set(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone||previous?.phone||'',uid:uid||previous?.uid||null,interests,verified:true,marketing:previous?.marketing===true||data.marketing,
-      marketing_consent_at:data.marketing?created:previous?.marketing_consent_at||null,privacy_version:consentVersion,created_at:previous?.created_at||created,updated_at:created,status:previous?.status||'new',notes:previous?.notes||'',source:previous?.source||data.source});
+    const interests=[...new Set([...(trusted?.interests||[]),...data.interests])];
+    tx.set(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone||trusted?.phone||'',uid:uid||trusted?.uid||null,interests,verified:true,marketing:trusted?.marketing===true||data.marketing,
+      marketing_consent_at:data.marketing?created:trusted?.marketing_consent_at||null,privacy_version:consentVersion,created_at:previous?.created_at||created,updated_at:created,status:previous?.status||'new',notes:previous?.notes||'',source:trusted?.source||data.source});
     if(inquiry){
-      tx.set(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,created_at:old?.created_at||created,updated_at:created,status:old?.status||'new',notes:old?.notes||'',privacy_version:consentVersion});
+      tx.set(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,verified:true,created_at:old?.created_at||created,updated_at:created,status:old?.status||'new',notes:old?.notes||'',privacy_version:consentVersion});
     }
     return key;
 }

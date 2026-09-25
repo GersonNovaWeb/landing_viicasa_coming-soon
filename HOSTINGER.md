@@ -64,8 +64,10 @@ La configuración local por archivo continúa funcionando.
 En Firebase Authentication → Configuración → Dominios autorizados, añadir solo
 el hostname temporal usado para las pruebas (sin `https://` ni rutas).
 Reconstruir y desplegar después de cambiar variables públicas: Next.js las
-incorpora durante la compilación. Mantener registro público y SMTP desactivados
-hasta aprobar privacidad y configurar el correo según README.
+incorpora durante la compilación. Mantener el registro público desactivado
+hasta aprobar privacidad. Después habilitar `REGISTRATION_ENABLED=true` y
+`PRIVACY_APPROVED=true`. El registro directo no requiere SMTP: se puede dejar
+`MAIL_MODE=disabled`; los interesados se guardan de inmediato como no verificados.
 
 ## Verificación y dominio final
 

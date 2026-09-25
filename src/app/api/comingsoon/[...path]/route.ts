@@ -3,14 +3,14 @@ import {NextResponse} from 'next/server';
 import {z} from 'zod';
 import {firebase,configuration,AppError,registrationOpen,requireRegistration} from '@/server/firebase';
 import {cookieName,identity,validateIdentity,jsonBody,requireSameOrigin,rateLimit,digest,timestamp} from '@/server/security';
-import {saveProfile,saveVerified,requestEmailConfirmation,confirmEmail,registrationSchema,statusSchema,mailEnabled} from '@/server/leads';
+import {saveProfile,saveVerified,saveUnverified,confirmEmail,registrationSchema,statusSchema} from '@/server/leads';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 type Context={params:Promise<{path:string[]}>};
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:{'Cache-Control':'private, no-store'}});}
 async function handle(request:Request,context:Context){try{
   const {path}=await context.params,key=path.join('/'),method=request.method;
-  if(key==='config'&&method==='GET')return response({auth:configuration().mode!=='disabled',google:registrationOpen(),email:registrationOpen()&&mailEnabled(),mode:configuration().mode});
+  if(key==='config'&&method==='GET')return response({auth:configuration().mode!=='disabled',google:registrationOpen(),email:registrationOpen(),mode:configuration().mode});
   const jar=await cookies();
   if(key==='session'&&method==='GET'){
     if(!jar.get(cookieName))return response({user:null});
@@ -32,8 +32,12 @@ async function handle(request:Request,context:Context){try{
     requireRegistration();const data=registrationSchema.parse(await jsonBody(request));
     await rateLimit('registration-global',120);await rateLimit(`email:${digest(data.email)}`,4,10);
     const session=jar.get(cookieName)?.value;
-    if(session){const user=await identity(session);if(user.email!==data.email)throw new AppError(400,'Usa el correo de tu cuenta de Google.');await saveVerified(data,user.uid);return response({state:'saved',message:data.kind==='inquiry'?'Recibimos tu solicitud.':'Ya formas parte de nuestra lista.'});}
-    await requestEmailConfirmation(data);return response({state:'confirmation_required',message:'Revisa tu correo y confirma el enlace para completar tu registro.'},202);
+    let user=null;
+    if(session){try{user=await identity(session);}catch(error){if(!(error instanceof AppError)||error.status!==401)throw error;}}
+    if(user){if(user.email!==data.email)throw new AppError(400,'Usa el correo de tu cuenta de Google.');await saveVerified(data,user.uid);}
+    else await saveUnverified(data);
+    // Same response for first submissions and duplicates; no account enumeration.
+    return response({state:'saved',message:data.kind==='inquiry'?'Recibimos tu solicitud.':'Recibimos tus datos. Gracias por tu interés en VIICASA.'});
   }
   if(key==='confirm'&&method==='POST'){requireRegistration();const body=z.object({token:z.string().max(150)}).strict().parse(await jsonBody(request));await rateLimit('confirm-global',120);await confirmEmail(body.token);return response({ok:true});}
   if(key==='preferences'&&method==='DELETE'){
