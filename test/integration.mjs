@@ -148,3 +148,78 @@ test('Google registration requires a supplied name and saves it with the verifie
  assert.ok(list.some(row=>row.id===hash(address)&&row.name==='Nombre elegido por cliente'&&row.email===address));
 });
 test('live mode refuses emulator environment',()=>{process.env.FIREBASE_MODE='live';assert.throws(configuration,/mezclar/);process.env.FIREBASE_MODE='emulator';});
+
+test('service welcome templates and delivery lifecycle (emulated, no real emails)',async t=>{
+ const {defaultWelcome,renderWelcome,welcomeTemplateSchema,mailServices}=await import('../src/lib/welcome-mail.ts');
+ const {dispatchWelcome,smtpStatus}=await import('../src/server/welcome-mail.ts');
+ const {saveUnverified,registrationSchema}=await import('../src/server/leads.ts');
+ const refs=mailServices.map(s=>db.collection('cs_mail_templates').doc(s));
+ const originals=await db.getAll(...refs);let firstIds;
+ const fresh=()=>`mail-${randomUUID()}@example.com`;
+ try{
+  await t.test('rendering escapes markup, substitutes names, rejects header injection and unknown tokens',()=>{
+   const copy=defaultWelcome('shop').en;const rendered=renderWelcome({...copy,body:'Hi {nombre}, welcome to {servicio}.'},'shop','en','<img src=x onerror=alert(1)>');
+   assert.ok(rendered.html.includes('&lt;img'));assert.equal((rendered.html.match(/<img /g)||[]).length,1);assert.ok(!rendered.html.includes('<img src=x'));assert.ok(rendered.text.includes('welcome to Shop'));
+   assert.equal(welcomeTemplateSchema.safeParse({...defaultWelcome('shop'),en:{...copy,subject:'Hi\r\nBcc: x@example.com'}}).success,false);
+   assert.equal(welcomeTemplateSchema.safeParse({...defaultWelcome('shop'),en:{...copy,body:'Hi {password}'}}).success,false);
+  });
+  await t.test('only admins can read/edit/test/process templates, with origin and schema validation',async()=>{
+   assert.equal((await req('admin/mail')).status,401);assert.equal((await req('admin/mail',undefined,visitor)).status,403);
+   for(const path of ['admin/mail/log','admin/mail/test','admin/mail/process'])assert.equal((await req(path,path.endsWith('log')?undefined:{},visitor)).status,403);
+   const s=await req('admin/mail',undefined,admin);assert.equal(s.status,200);assert.equal(s.data.smtp.ready,false);assert.equal(s.data.testRecipient,'gerson@novaweb-agency.com');assert.equal(JSON.stringify(s.data).includes('SMTP_PASSWORD'),false);
+   const payload={template:defaultWelcome('shop'),revision:s.data.templates.shop.revision};
+   assert.equal((await req('admin/mail/shop',payload,admin,'PATCH','https://evil.example')).status,403);
+   assert.equal((await req('admin/mail/shop',{...payload,to:'other@example.com'},admin,'PATCH')).status,400);
+   assert.equal((await req('admin/mail/test',{service:'shop',locale:'en',template:payload.template,to:'other@example.com'},admin)).status,400);
+   assert.equal((await req('admin/mail/test',{service:'shop',locale:'en',template:payload.template},admin)).status,503);
+  });
+  await t.test('saves both languages per service; stale editors cannot overwrite newer changes',async()=>{
+   for(const service of mailServices){const s=(await req('admin/mail',undefined,admin)).data;const template=defaultWelcome(service);template.enabled=true;template.es.body='Hola {nombre}, recibimos tu interés en {servicio}.';template.en.body='Hello {nombre}, we received your interest in {servicio}.';
+    const body={template,revision:s.templates[service].revision};assert.equal((await req(`admin/mail/${service}`,body,admin,'PATCH')).status,200);assert.equal((await req(`admin/mail/${service}`,body,admin,'PATCH')).status,409);
+   }
+  });
+  await t.test('multi-interest registration snapshots three localized templates; duplicates cannot resend',async()=>{
+   const address=fresh(),data={...input,email:address,name:'María prueba',locale:'es',interests:[...mailServices]};
+   const responses=await Promise.all([req('register',data),req('register',data)]);responses.forEach(r=>assert.equal(r.status,200,JSON.stringify(r.data)));
+   firstIds=mailServices.map(s=>hash(`welcome:${address}:${s}`));
+   for(const id of firstIds){const row=(await db.collection('cs_mail_outbox').doc(id).get()).data();assert.equal(row.state,'pending');assert.equal(row.locale,'es');assert.ok(row.mail.text.includes('Hola María prueba'));}
+   const template=defaultWelcome('viilife');template.enabled=true;template.es.body='CAMBIADO';const s=(await req('admin/mail',undefined,admin)).data;
+   assert.equal((await req('admin/mail/viilife',{template,revision:s.templates.viilife.revision},admin,'PATCH')).status,200);
+   assert.ok(!(await db.collection('cs_mail_outbox').doc(firstIds[0]).get()).data().mail.text.includes('CAMBIADO'));
+  });
+  await t.test('concurrent dispatch claims once; accepted messages are not resent',async()=>{
+   let sent=0;const sender=async(to,mail)=>{sent++;assert.ok(to.endsWith('@example.com'));assert.ok(mail.html.includes('VIICASA'));};
+   await Promise.all([dispatchWelcome(firstIds[0],sender),dispatchWelcome(firstIds[0],sender)]);assert.equal(sent,1);
+   assert.equal((await db.collection('cs_mail_outbox').doc(firstIds[0]).get()).data().state,'sent');await dispatchWelcome(firstIds[0],sender);assert.equal(sent,1);
+  });
+  await t.test('SMTP error does not lose contact and ambiguous outcomes are not retried',async()=>{
+   let attempts=0;const fail=async()=>{attempts++;throw Error('fake SMTP timeout with secret detail');};
+   assert.equal(await dispatchWelcome(firstIds[1],fail),'unknown');await dispatchWelcome(firstIds[1],fail);assert.equal(attempts,1);
+   const row=(await db.collection('cs_mail_outbox').doc(firstIds[1]).get()).data();assert.equal(row.reason,'smtp_error_check_provider');assert.equal(JSON.stringify(row).includes('secret detail'),false);assert.equal((await db.collection('cs_contacts').doc(row.contact_id).get()).exists,true);
+  });
+  await t.test('rolling budget defers extra messages without contacting SMTP',async()=>{
+   const before=process.env.MAIL_DAILY_LIMIT;process.env.MAIL_DAILY_LIMIT='1';let sent=0;
+   try{await dispatchWelcome(firstIds[2],async()=>{sent++;});assert.equal(sent,0);assert.equal((await db.collection('cs_mail_outbox').doc(firstIds[2]).get()).data().state,'pending');}finally{if(before===undefined)delete process.env.MAIL_DAILY_LIMIT;else process.env.MAIL_DAILY_LIMIT=before;}
+  });
+  await t.test('each service page queues its own English acknowledgement without marketing opt-in',async()=>{
+   for(const service of mailServices){const data={...input,email:fresh(),locale:'en',source:service,interests:[service],kind:'inquiry',marketing:false};assert.equal((await req('register',data)).status,200);const row=(await db.collection('cs_mail_outbox').doc(hash(`welcome:${data.email}:${service}`)).get()).data();assert.equal(row.service,service);assert.equal(row.locale,'en');assert.ok(row.mail.text.includes('Hello'));
+   }
+  });
+  await t.test('disabled templates reserve a skipped welcome and enabling does not backfill duplicates',async()=>{
+   const template=defaultWelcome('shop');await refs[2].set({template,revision:1});const data=registrationSchema.parse({...input,email:fresh(),interests:['shop']});await saveUnverified(data);
+   const ref=db.collection('cs_mail_outbox').doc(hash(`welcome:${data.email}:shop`));assert.equal((await ref.get()).data().state,'skipped');template.enabled=true;await refs[2].set({template,revision:2});await saveUnverified(data);assert.equal((await ref.get()).data().state,'skipped');
+  });
+  await t.test('deleted contacts, unsubscribe and disabled service suppress pending mail',async()=>{
+   for(const scenario of ['deleted','unsubscribed','disabled']){
+    const template=defaultWelcome('shop');template.enabled=true;await refs[2].set({template,revision:2});const data=registrationSchema.parse({...input,email:fresh(),interests:['shop']});const saved=await saveUnverified(data);
+    const ref=db.collection('cs_contacts').doc(hash(data.email));if(scenario==='deleted')await ref.delete();if(scenario==='unsubscribed')await ref.update({marketing:false});if(scenario==='disabled')await refs[2].update({'template.enabled':false});
+    let sent=0;await dispatchWelcome(saved.mailIds[0],async()=>{sent++;});assert.equal(sent,0);assert.equal((await db.collection('cs_mail_outbox').doc(saved.mailIds[0]).get()).data().state,'skipped');
+   }
+  });
+  await t.test('admin log shows safe metadata only and emulator cannot open SMTP even with credentials',async()=>{
+   const r=await req('admin/mail/log',undefined,admin);assert.equal(r.status,200);assert.ok(r.data.rows.length);assert.ok(r.data.rows.every(row=>!('mail'in row)));
+   const old={MAIL_MODE:process.env.MAIL_MODE,SMTP_HOST:process.env.SMTP_HOST,SMTP_USER:process.env.SMTP_USER,SMTP_PASSWORD:process.env.SMTP_PASSWORD,MAIL_FROM:process.env.MAIL_FROM};
+   try{Object.assign(process.env,{MAIL_MODE:'smtp',SMTP_HOST:'smtp.example.com',SMTP_USER:'test',SMTP_PASSWORD:'fake',MAIL_FROM:'test@example.com'});assert.equal(smtpStatus().ready,false);}finally{for(const[k,v]of Object.entries(old)){if(v===undefined)delete process.env[k];else process.env[k]=v;}}
+  });
+ }finally{for(let i=0;i<refs.length;i++){if(originals[i].exists)await refs[i].set(originals[i].data());else await refs[i].delete();}}
+});

@@ -5,6 +5,7 @@ import type {Transaction} from 'firebase-admin/firestore';
 import {firebase,AppError,configuration} from './firebase.ts';
 import {digest,timestamp} from './security.ts';
 import {confirmationMail} from '../lib/mail-copy.ts';
+import {planWelcome} from './welcome-mail.ts';
 export const interestSchema=z.enum(['viilife','viiconcierge','shop']);
 export const registrationSchema=z.object({name:z.string().trim().min(2).max(120),email:z.email().max(254).transform(e=>e.toLowerCase()),locale:z.enum(['es','en']).default('es'),interests:z.array(interestSchema).min(1).max(3).transform(a=>[...new Set(a)]),phone:z.string().trim().max(30).default(''),message:z.string().trim().max(2000).default(''),kind:z.enum(['waitlist','inquiry']),privacy:z.literal(true),marketing:z.boolean(),source:z.enum(['home','viilife','viiconcierge','shop']),website:z.string().max(0).default('')}).strict().refine(v=>v.kind!=='waitlist'||v.marketing,{message:'Autoriza las novedades para unirte a la lista.'});
 export type Registration=z.infer<typeof registrationSchema>;
@@ -14,36 +15,39 @@ export type Person={uid:string,email:string,name:string,admin:boolean};
 export async function saveProfile(user:Person){const {db}=firebase(),ref=db.collection('cs_accounts').doc(user.uid);await db.runTransaction(async tx=>{const existing=(await tx.get(ref)).data();tx.set(ref,{uid:user.uid,email:user.email,name:user.name,created_at:existing?.created_at||timestamp(),last_login_at:timestamp(),provider:'google.com'});});}
 // Separate identity, marketing consent and service requests. Anonymous submissions never modify a verified record.
 export async function saveVerified(data:Registration,uid:string|null){
-  const{db}=firebase();return db.runTransaction(tx=>persistVerified(tx,data,uid));
+  const{db}=firebase();return db.runTransaction(tx=>persistVerified(tx,data,uid,true));
 }
 // Public interest capture is not authentication. Never overwrite an existing
 // contact, consent, follow-up or verified identity using an unverified email.
 export async function saveUnverified(data:Registration){
   const{db}=firebase(),key=digest(data.email),ref=db.collection('cs_contacts').doc(key);
-  await db.runTransaction(async tx=>{
+  return db.runTransaction(async tx=>{
     const previous=await tx.get(ref);
     const inquiry=data.kind==='inquiry'?db.collection('cs_inquiries').doc(digest(`${key}:${data.source}:${data.message}`)):null;
     const old=inquiry?await tx.get(inquiry):null;
+    const welcome=await planWelcome(tx,data,!previous.exists||!!(inquiry&&!old?.exists));
     const created=timestamp();
     if(!previous.exists)tx.create(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone,uid:null,interests:data.interests,verified:false,
       marketing:data.marketing,marketing_consent_at:data.marketing?created:null,privacy_version:consentVersion,created_at:created,updated_at:created,status:'new',notes:'',source:data.source});
     if(inquiry&&!old?.exists)tx.create(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,
       verified:false,created_at:created,updated_at:created,status:'new',notes:'',privacy_version:consentVersion});
+    return {key,mailIds:welcome()};
   });
 }
-async function persistVerified(tx:Transaction,data:Registration,uid:string|null){
+async function persistVerified(tx:Transaction,data:Registration,uid:string|null,sendWelcome=false){
     const{db}=firebase(),key=digest(data.email),ref=db.collection('cs_contacts').doc(key),created=timestamp();
     const previous=(await tx.get(ref)).data();
     const trusted=previous?.verified===true?previous:undefined;
     const inquiry=data.kind==='inquiry'?db.collection('cs_inquiries').doc(digest(`${key}:${data.source}:${data.message}`)):null;
     const old=inquiry?(await tx.get(inquiry)).data():null;
+    const welcome=await planWelcome(tx,data,sendWelcome);
     const interests=[...new Set([...(trusted?.interests||[]),...data.interests])];
     tx.set(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone||trusted?.phone||'',uid:uid||trusted?.uid||null,interests,verified:true,marketing:trusted?.marketing===true||data.marketing,
       marketing_consent_at:data.marketing?created:trusted?.marketing_consent_at||null,privacy_version:consentVersion,created_at:previous?.created_at||created,updated_at:created,status:previous?.status||'new',notes:previous?.notes||'',source:trusted?.source||data.source});
     if(inquiry){
       tx.set(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,verified:true,created_at:old?.created_at||created,updated_at:created,status:old?.status||'new',notes:old?.notes||'',privacy_version:consentVersion});
     }
-    return key;
+    return {key,mailIds:welcome()};
 }
 export function mailEnabled(){return process.env.MAIL_MODE==='smtp'&&!!process.env.SMTP_HOST&&!!process.env.MAIL_FROM;}
 export async function requestEmailConfirmation(data:Registration){

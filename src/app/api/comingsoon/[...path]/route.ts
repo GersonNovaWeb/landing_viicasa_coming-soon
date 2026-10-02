@@ -1,9 +1,11 @@
 import {cookies} from 'next/headers';
-import {NextResponse} from 'next/server';
+import {NextResponse,after} from 'next/server';
 import {z} from 'zod';
 import {firebase,configuration,AppError,registrationOpen,requireRegistration} from '@/server/firebase';
 import {cookieName,identity,validateIdentity,jsonBody,requireSameOrigin,rateLimit,digest,timestamp} from '@/server/security';
 import {saveProfile,saveVerified,saveUnverified,confirmEmail,registrationSchema,statusSchema} from '@/server/leads';
+import {getWelcomeSettings,saveWelcomeTemplate,dispatchWelcome,sendWelcomeTest} from '@/server/welcome-mail';
+import {welcomeTemplateSchema,mailServices,renderWelcome} from '@/lib/welcome-mail';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 type Context={params:Promise<{path:string[]}>};
@@ -34,8 +36,9 @@ async function handle(request:Request,context:Context){try{
     const session=jar.get(cookieName)?.value;
     let user=null;
     if(session){try{user=await identity(session);}catch(error){if(!(error instanceof AppError)||error.status!==401)throw error;}}
-    if(user){if(user.email!==data.email)throw new AppError(400,'Usa el correo de tu cuenta de Google.');await saveVerified(data,user.uid);}
-    else await saveUnverified(data);
+    if(user&&user.email!==data.email)throw new AppError(400,'Usa el correo de tu cuenta de Google.');
+    const saved=user?await saveVerified(data,user.uid):await saveUnverified(data);
+    after(async()=>{for(const id of saved.mailIds){try{await dispatchWelcome(id);}catch{console.error('Welcome delivery needs review',{id});}}});
     // Same response for first submissions and duplicates; no account enumeration.
     return response({state:'saved',message:data.kind==='inquiry'?'Recibimos tu solicitud.':'Recibimos tus datos. Gracias por tu interés en VIICASA.'});
   }
@@ -46,6 +49,27 @@ async function handle(request:Request,context:Context){try{
   }
   if(path[0]==='admin'){
     const user=await identity(jar.get(cookieName)?.value,true),{db}=firebase();
+    if(key==='admin/mail'&&method==='GET')return response(await getWelcomeSettings());
+    if(key==='admin/mail/log'&&method==='GET'){
+      const docs=await db.collection('cs_mail_outbox').orderBy('created_at','desc').limit(30).get();
+      return response({rows:docs.docs.map(doc=>{const d=doc.data();return {id:doc.id,email:d.email,service:d.service,locale:d.locale,state:d.state,created_at:d.created_at};})});
+    }
+    if(key==='admin/mail/process'&&method==='POST'){
+      const {id}=z.object({id:z.string().regex(/^[a-f0-9]{64}$/)}).strict().parse(await jsonBody(request));
+      await rateLimit(`mail-process:${user.uid}`,10);
+      return response({state:await dispatchWelcome(id)});
+    }
+    if(path[1]==='mail'&&path.length===3&&method==='PATCH'){
+      const service=z.enum(mailServices).parse(path[2]);
+      const body=z.object({template:welcomeTemplateSchema,revision:z.number().int().min(0)}).strict().parse(await jsonBody(request,32768));
+      return response({revision:await saveWelcomeTemplate(service,body.template,body.revision,user.uid)});
+    }
+    if(key==='admin/mail/test'&&method==='POST'){
+      const body=z.object({service:z.enum(mailServices),locale:z.enum(['es','en']),template:welcomeTemplateSchema}).strict().parse(await jsonBody(request,32768));
+      await rateLimit(`mail-test:${user.uid}`,3,10);
+      await sendWelcomeTest(renderWelcome(body.template[body.locale],body.service,body.locale,'Gerson'));
+      return response({ok:true});
+    }
     if(key==='admin/summary'&&method==='GET'){
       const counts=await Promise.all(['cs_accounts','cs_contacts','cs_inquiries'].map(c=>db.collection(c).count().get()));
       const marketing=await db.collection('cs_contacts').where('marketing','==',true).count().get();

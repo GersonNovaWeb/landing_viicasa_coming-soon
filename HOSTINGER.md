@@ -71,6 +71,10 @@ hasta aprobar privacidad. Después habilitar `REGISTRATION_ENABLED=true` y
 
 ## Verificación y dominio final
 
+Para las bienvenidas editables de los tres servicios, seguir [WELCOME_EMAILS.md](WELCOME_EMAILS.md).
+El registro no depende de SMTP. Los correos requieren configurar el buzón, probar la recepción
+y activar cada servicio en **Admin → Correos automáticos**. No se envía nada al guardar una plantilla.
+
 1. Comprobar despliegue exitoso y commit correcto en el panel.
 2. Revisar inicio, servicios, imágenes y selector de idioma.
 3. Probar acceso Google y dashboard con el administrador autorizado; comprobar

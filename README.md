@@ -2,6 +2,10 @@
 
 Implementación de **Immersive Luxury** con Next.js, Firebase Authentication y Firestore. Proyecto independiente del backend de la plataforma completa. Destino previsto: aplicación Node.js en Hostinger para `viicasa.com`.
 
+## Actualización — correos automáticos (1 octubre 2026)
+
+El panel incluye un editor de bienvenidas para ViiLife, ViiConcierge y Shop, con versiones ES/EN, vista previa, pruebas a gerson@novaweb-agency.com e historial. El envío está desactivado por defecto y requiere SMTP y activar cada servicio. El registro directo sigue funcionando sin correo. Configuración, límites y recuperación de pendientes: [WELCOME_EMAILS.md](WELCOME_EMAILS.md).
+
 ## Actualización — registro directo (25 septiembre 2026)
 
 El registro público ya no exige Google ni SMTP. Al enviar el formulario, nombre, correo e intereses se guardan inmediatamente en `cs_contacts`, con `verified: false` si no hay sesión válida de Google. No se envía correo ni se crea una cuenta de acceso. El administrador ve el estado de verificación. Los enlaces de confirmación antiguos siguen siendo compatibles.

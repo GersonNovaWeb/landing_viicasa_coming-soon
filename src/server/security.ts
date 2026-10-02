@@ -6,10 +6,10 @@ export const digest=(value:string)=>createHash('sha256').update(value).digest('h
 export const cookieName='viicasa_session';
 export const timestamp=()=>new Date().toISOString();
 export function requireSameOrigin(request:Request){if(request.headers.get('origin')!==configuration().origin)throw new AppError(403,'Origen no permitido.');}
-export async function jsonBody(request:Request){
+export async function jsonBody(request:Request,maxBytes=16384){
   if(!request.headers.get('content-type')?.startsWith('application/json'))throw new AppError(415,'Se requiere JSON.');
   const reader=request.body?.getReader();if(!reader)throw new AppError(400,'Faltan datos.');let bytes=0;const parts:Uint8Array[]=[];
-  for(;;){const{done,value}=await reader.read();if(done)break;bytes+=value.length;if(bytes>16384){await reader.cancel();throw new AppError(413,'Solicitud demasiado grande.');}parts.push(value);}
+  for(;;){const{done,value}=await reader.read();if(done)break;bytes+=value.length;if(bytes>maxBytes){await reader.cancel();throw new AppError(413,'Solicitud demasiado grande.');}parts.push(value);}
   try{return JSON.parse(Buffer.concat(parts).toString());}catch{throw new AppError(400,'Datos inválidos.');}
 }
 export async function rateLimit(scope:string,limit:number,minutes=1){

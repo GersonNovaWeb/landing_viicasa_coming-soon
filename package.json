@@ -7,8 +7,9 @@
     "dev:emulator": "node scripts/dev-emulator.mjs",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint src/app src/server src/components src/lib/client.ts src/lib/content.ts src/lib/i18n.ts src/lib/mail-copy.ts scripts test next.config.ts",
+    "lint": "eslint src/app src/server src/components src/lib/client.ts src/lib/content.ts src/lib/i18n.ts src/lib/mail-copy.ts src/lib/welcome-mail.ts scripts test next.config.ts",
     "test:i18n": "node --experimental-strip-types --test test/i18n.mjs",
+    "test:mail": "node --experimental-strip-types --test test/welcome-mail.mjs",
     "check:firebase": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types scripts/check-firebase.ts",
     "test:integration": "node --conditions=react-server --experimental-strip-types --test --test-concurrency=1 test/integration.mjs"
   },

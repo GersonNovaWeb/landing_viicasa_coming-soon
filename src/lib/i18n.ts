@@ -4,6 +4,13 @@ export const normalizeLocale = (value?: string): Locale => value === 'es' ? 'es'
 
 // Spanish is the source language. Brand names and customer-entered content stay unchanged.
 export const english: Record<string, string> = {
+  'Cuando esté habilitado, recibirás un mensaje de bienvenida por cada servicio seleccionado. El envío utiliza nuestro proveedor de correo y no verifica la propiedad de tu dirección ni condiciona tu registro.': 'When enabled, you will receive a welcome message for each selected service. Messages are sent through our email provider and do not verify ownership of your email or affect your registration.',
+  'Correos automáticos': 'Automatic emails',
+  'Mensajes de bienvenida por servicio, en inglés y español.': 'Service welcome messages in English and Spanish.',
+  'SMTP no está configurado. El registro sigue funcionando.': 'SMTP is not configured. Registration still works.',
+  'La plantilla cambió. Recarga antes de guardar.': 'The template changed. Reload before saving.',
+  'Se alcanzó el límite de envíos. Inténtalo más tarde.': 'The sending limit was reached. Try again later.',
+  'No se pudo confirmar el envío. Revisa SMTP antes de repetir la prueba.': 'Sending could not be confirmed. Check SMTP before repeating the test.',
   'Deja tu nombre y correo para registrar tu interés. No necesitas Google, contraseña ni confirmar un correo.': 'Leave your name and email to register your interest. No Google account, password or email confirmation is needed.',
   'Revisa que tu correo esté bien escrito. Tus datos se guardarán al enviar el formulario.': 'Check that your email is correct. Your details will be saved when you submit the form.',
   'Recibimos tus datos. Gracias por tu interés en VIICASA.': 'We received your details. Thank you for your interest in VIICASA.',
