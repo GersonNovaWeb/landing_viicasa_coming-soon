@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {api} from '@/lib/client';
 import {useLanguage} from './language';
-import {mailServices,mailNames,renderWelcome,welcomeTestRecipientSchema,type MailService,type WelcomeTemplate,type MailCopy} from '@/lib/welcome-mail';
+import {mailServices,mailNames,renderWelcome,approvedWelcomeEnglish,welcomeTestRecipientSchema,type MailService,type WelcomeTemplate,type MailCopy} from '@/lib/welcome-mail';
 
 type Settings={templates:Record<MailService,{template:WelcomeTemplate;revision:number}>;smtp:{ready:boolean;dailyLimit:number};testRecipient:string};
 type Log={id:string;email:string;service:MailService;locale:string;state:string;created_at:string};
@@ -16,6 +16,12 @@ export function MailEditor({onDirtyChange}:{onDirtyChange:(dirty:boolean)=>void}
   useEffect(()=>{let active=true;Promise.all([api<Settings>('admin/mail'),api<{rows:Log[]}>('admin/mail/log')]).then(([s,l])=>{if(active){setSettings(s);setDraft(s.templates.viilife.template);setLogs(l.rows);setTestRecipient(s.testRecipient);}}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
   useEffect(()=>{if(!dirty)return;const guard=(e:BeforeUnloadEvent)=>{e.preventDefault();};window.addEventListener('beforeunload',guard);return()=>window.removeEventListener('beforeunload',guard);},[dirty]);
   function changeService(next:MailService){if(!settings||busy)return;if(dirty&&!window.confirm(tr('¿Descartar los cambios sin guardar?','Discard unsaved changes?')))return;setService(next);setDraft(settings.templates[next].template);setNotice('');setError('');}
+  function loadApprovedMessage(){
+    if(!draft||busy)return;
+    if(!window.confirm(tr('¿Reemplazar el borrador en inglés de este servicio por el mensaje de James Harper? Podrás editarlo antes de guardar.','Replace this service’s English draft with James Harper’s message? You can edit it before saving.')))return;
+    setDraft({...draft,en:approvedWelcomeEnglish(service)});setLanguage('en');setError('');
+    setNotice(tr('Mensaje cargado en inglés. Revisa la vista previa y guarda los cambios para aplicarlo.','English message loaded. Review the preview and save changes to apply it.'));
+  }
   async function action(kind:'save'|'test'){
     if(!draft||!settings)return;setBusy(true);setError('');setNotice('');
     try{
@@ -52,7 +58,8 @@ export function MailEditor({onDirtyChange}:{onDirtyChange:(dirty:boolean)=>void}
         <fieldset disabled={busy} className="mail-fields">
           <label className="check-label"><input type="checkbox" checked={draft.enabled} onChange={e=>setDraft({...draft,enabled:e.target.checked})}/><span>{tr('Activar bienvenida automática para este servicio','Enable automatic welcome for this service')}</span></label>
           <label>{tr('Idioma del mensaje','Message language')}<select value={language} onChange={e=>setLanguage(e.target.value as 'es'|'en')}><option value="en">English</option><option value="es">Español</option></select></label>
-          <p className="form-note">{tr('Edita las dos versiones. Se usa el idioma del formulario. Variables: {nombre} y {servicio}. Texto plano, sin HTML.','Edit both versions. The form language determines the email language. Variables: {nombre} and {servicio}. Plain text, no HTML.')}</p>
+          <p className="form-note">{tr('Edita las dos versiones. Se usa el idioma del formulario. Variables: {first_name} (primer nombre), {nombre} (nombre completo) y {servicio}. Texto plano, sin HTML.','Edit both versions. The form language determines the email language. Variables: {first_name} (first name), {nombre} (full name) and {servicio}. Plain text, no HTML.')}</p>
+          <div><button type="button" className="text-link" onClick={loadApprovedMessage}>{tr('Cargar mensaje de James Harper (inglés)','Load James Harper’s message (English)')}</button><p className="form-note">{tr('Carga el texto aprobado para este servicio. No modifica la versión en español ni activa envíos.','Loads the approved copy for this service. Does not change the Spanish version or enable sending.')}</p></div>
           <label>{tr('Asunto','Subject')}<input value={copy.subject} maxLength={160} required onChange={e=>edit('subject',e.target.value)}/></label>
           <label>{tr('Mensaje de bienvenida','Welcome message')}<textarea value={copy.body} maxLength={3000} required rows={9} onChange={e=>edit('body',e.target.value)}/></label>
           <label>{tr('Firma','Signature')}<textarea value={copy.signature} maxLength={300} rows={3} onChange={e=>edit('signature',e.target.value)}/></label>

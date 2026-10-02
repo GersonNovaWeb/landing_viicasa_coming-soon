@@ -1,6 +1,29 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {defaultWelcome,renderWelcome,mailServices,mailNames,welcomeTestRecipientSchema} from '../src/lib/welcome-mail.ts';
+import {defaultWelcome,approvedWelcomeEnglish,renderWelcome,mailServices,mailNames,welcomeTestRecipientSchema,welcomeTemplateSchema} from '../src/lib/welcome-mail.ts';
+
+for(const service of mailServices)test(`James Harper copy is editable, valid and specific to ${service}`,()=>{
+ const template=defaultWelcome(service),copy=approvedWelcomeEnglish(service);
+ assert.equal(template.enabled,false);assert.deepEqual(template.en,copy);
+ assert.equal(welcomeTemplateSchema.safeParse(template).success,true);
+ const rendered=renderWelcome(copy,service,'en','  James   Harper  ');
+ assert.ok(rendered.text.includes('Hi James,'));assert.ok(!rendered.text.includes('Hi James Harper'));
+ assert.ok(rendered.text.includes(`You told us ${mailNames[service]} caught your eye`));
+ const descriptions={shop:'ViiShop is where the lifestyle',viilife:'ViiLife brings hotel-standard',viiconcierge:'ViiConcierge is full-service'};
+ for(const other of mailServices)assert.equal(rendered.text.includes(descriptions[other]),other===service);
+ for(const text of ["You're officially on the list",'Are you a maker, supplier or brand?',"We'll be in touch soon with your first look.",'Warmly,\nJames Harper\nFounder, VIICasa','info@viicasa.com · 1 (866) 623-9889'])assert.ok(rendered.text.includes(text));
+ assert.ok(!/[{}]/.test(rendered.text));assert.equal(copy.footer,'');
+ const edited={...template,en:{...copy,body:'Hello {first_name}, this is an edited message for {servicio}.'}};
+ assert.equal(welcomeTemplateSchema.safeParse(edited).success,true);
+ assert.ok(renderWelcome(edited.en,service,'en','Mary Smith').text.includes('Hello Mary, this is an edited message'));
+ assert.equal(defaultWelcome(service).en.body,copy.body);
+});
+test('first-name variable is escaped and does not recursively expand customer tokens',()=>{
+ const copy={...approvedWelcomeEnglish('shop'),body:'Hi {first_name}; full name: {nombre}; {servicio}'};
+ const rendered=renderWelcome(copy,'shop','en','<script> Doe');
+ assert.ok(rendered.html.includes('Hi &lt;script&gt;'));assert.ok(!rendered.html.includes('<script>'));
+ assert.ok(renderWelcome(copy,'shop','en','{servicio} Doe').text.includes('Hi {servicio}; full name: {servicio} Doe; ViiShop'));
+});
 
 for(const service of mailServices)for(const locale of ['es','en']){
  test(`approved HTML frame is preserved for ${service}/${locale}`,()=>{

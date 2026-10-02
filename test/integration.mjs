@@ -159,7 +159,7 @@ test('service welcome templates and delivery lifecycle (emulated, no real emails
  try{
   await t.test('rendering escapes markup, substitutes names, rejects header injection and unknown tokens',()=>{
    const copy=defaultWelcome('shop').en;const rendered=renderWelcome({...copy,body:'Hi {nombre}, welcome to {servicio}.'},'shop','en','<img src=x onerror=alert(1)>');
-   assert.ok(rendered.html.includes('&lt;img'));assert.equal((rendered.html.match(/<img /g)||[]).length,1);assert.ok(!rendered.html.includes('<img src=x'));assert.ok(rendered.text.includes('welcome to Shop'));
+   assert.ok(rendered.html.includes('&lt;img'));assert.equal((rendered.html.match(/<img /g)||[]).length,1);assert.ok(!rendered.html.includes('<img src=x'));assert.ok(rendered.text.includes('welcome to ViiShop'));
    assert.equal(welcomeTemplateSchema.safeParse({...defaultWelcome('shop'),en:{...copy,subject:'Hi\r\nBcc: x@example.com'}}).success,false);
    assert.equal(welcomeTemplateSchema.safeParse({...defaultWelcome('shop'),en:{...copy,body:'Hi {password}'}}).success,false);
   });
@@ -210,7 +210,10 @@ test('service welcome templates and delivery lifecycle (emulated, no real emails
    try{await dispatchWelcome(firstIds[2],async()=>{sent++;});assert.equal(sent,0);assert.equal((await db.collection('cs_mail_outbox').doc(firstIds[2]).get()).data().state,'pending');}finally{if(before===undefined)delete process.env.MAIL_DAILY_LIMIT;else process.env.MAIL_DAILY_LIMIT=before;}
   });
   await t.test('each service page queues its own English acknowledgement without marketing opt-in',async()=>{
-   for(const service of mailServices){const data={...input,email:fresh(),locale:'en',source:service,interests:[service],kind:'inquiry',marketing:false};assert.equal((await req('register',data)).status,200);const row=(await db.collection('cs_mail_outbox').doc(hash(`welcome:${data.email}:${service}`)).get()).data();assert.equal(row.service,service);assert.equal(row.locale,'en');assert.ok(row.mail.text.includes('Hello'));
+   // Apply the approved copy through the same save API used by the editor.
+   // Earlier tests intentionally saved custom drafts, which must not be overwritten automatically.
+   for(const service of mailServices){const s=(await req('admin/mail',undefined,admin)).data;const template={...defaultWelcome(service),enabled:true};assert.equal((await req(`admin/mail/${service}`,{template,revision:s.templates[service].revision},admin,'PATCH')).status,200);}
+   for(const service of mailServices){const data={...input,email:fresh(),locale:'en',source:service,interests:[service],kind:'inquiry',marketing:false};assert.equal((await req('register',data)).status,200);const row=(await db.collection('cs_mail_outbox').doc(hash(`welcome:${data.email}:${service}`)).get()).data();assert.equal(row.service,service);assert.equal(row.locale,'en');assert.ok(row.mail.text.includes('Hi Visitante,'));assert.ok(row.mail.text.includes('James Harper'));assert.ok(!row.mail.text.includes('{first_name}'));
    }
   });
   await t.test('disabled templates reserve a skipped welcome and enabling does not backfill duplicates',async()=>{

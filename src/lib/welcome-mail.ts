@@ -2,7 +2,7 @@ import {z} from 'zod';
 
 export const mailServices=['viilife','viiconcierge','shop'] as const;
 export type MailService=typeof mailServices[number];
-export const mailNames:Record<MailService,string>={viilife:'ViiLife',viiconcierge:'ViiConcierge',shop:'Shop'};
+export const mailNames:Record<MailService,string>={viilife:'ViiLife',viiconcierge:'ViiConcierge',shop:'ViiShop'};
 // Exactly one mailbox, never a display-name list or injected mail header.
 export const welcomeTestRecipientSchema=z.string().regex(/^[^\r\n]*$/).trim().max(254).pipe(z.email()).transform(email=>email.toLowerCase());
 const copySchema=z.object({
@@ -10,20 +10,45 @@ const copySchema=z.object({
   body:z.string().trim().min(1).max(3000),
   signature:z.string().trim().max(300),
   footer:z.string().trim().max(500),
-}).strict().refine(copy=>Object.values(copy).every(text=>!/[{}]/.test(text.replaceAll('{nombre}','').replaceAll('{servicio}',''))),{message:'Solo se permiten {nombre} y {servicio}.'});
+}).strict().refine(copy=>Object.values(copy).every(text=>!/[{}]/.test(text.replaceAll('{nombre}','').replaceAll('{servicio}','').replaceAll('{first_name}',''))),{message:'Solo se permiten {nombre}, {first_name} y {servicio}.'});
 export const welcomeTemplateSchema=z.object({enabled:z.boolean(),es:copySchema,en:copySchema}).strict();
 export type WelcomeTemplate=z.infer<typeof welcomeTemplateSchema>;
 export type MailCopy=WelcomeTemplate['es'];
+const approvedServiceCopy:Record<MailService,string>={
+  shop:"ViiShop is where the lifestyle comes home with you. Every space you live in can be made special. The linens you sleep in, the throw on the sofa, the art on the wall, the kitchenware you cooked with. If you love it, you'll be able to take it home.",
+  viilife:"ViiLife brings hotel-standard home care to your front door: the five-star treatment, minus the check-in. Our trained, insured and bonded crews take care of the cleaning, laundry, wash-and-fold, and the small finishing touches that make a home feel looked after. They apply the same exacting standard we hold in our hospitality properties. You set your schedule once and we handle the rest, so your evenings and weekends go back to the people and things you actually enjoy. It's simple, reliable care for busy households that want their home to feel like a retreat every day.",
+  viiconcierge:"ViiConcierge is full-service short-term rental management for property owners who want the rewards of hosting without the work. We prepare and style your space, handle licensing and compliance, create and price your listing, welcome every guest, and keep the property spotless and maintained between stays. You keep full ownership of your home and share in the revenue it earns, while we run every part of the operation. Depending on the arrangement you choose, getting started might be easier than you expect. It's a professional, hands-off way to let your property work for you.",
+};
+export function approvedWelcomeEnglish(service:MailService):MailCopy{
+  return {
+    subject:`Welcome to ViiCasa — ${mailNames[service]}`,
+    body:`Hi {first_name},
+Welcome to ViiCasa.com. You're officially on the list, and we're glad you're here.
+
+You told us {servicio} caught your eye, so here's what's coming.
+
+${approvedServiceCopy[service]}
+
+As a waitlist member, you'll be first to shop limited pieces, first to hear about new services and first to hear about early-member pricing when we open the doors.
+
+Are you a maker, supplier or brand? We're always looking for partners whose products belong in beautiful, well-lived spaces. Reply to this email and tell us about what you make.
+
+We'll be in touch soon with your first look.`,
+    signature:'Warmly,\nJames Harper\nFounder, VIICasa\nviicasa.com/shop\ninfo@viicasa.com · 1 (866) 623-9889',
+    footer:'',
+  };
+}
 export function defaultWelcome(service:MailService):WelcomeTemplate{
   const name=mailNames[service];
   return {enabled:false,
     es:{subject:`Gracias por tu interés en ${name}`,body:`Hola, {nombre}:\n\nGracias por registrar tu interés en {servicio}. Recibimos tus datos y nos alegra que formes parte de este comienzo.\n\nEstamos preparando nuestra propuesta. Este mensaje no confirma una reserva ni genera ningún cobro.`,signature:'Con aprecio,\nEl equipo de VIICASA',footer:'Recibes este mensaje porque registraste tu interés en VIICASA. Si no fuiste tú, ignora este correo o responde para informarnos.'},
-    en:{subject:`Thank you for your interest in ${name}`,body:'Hello, {nombre},\n\nThank you for registering your interest in {servicio}. We have received your details and are glad to have you with us from the beginning.\n\nOur services are being prepared. This message does not confirm a booking or create a charge.',signature:'Warm regards,\nThe VIICASA team',footer:'You received this message because your interest was registered with VIICASA. If this was not you, please ignore this email or reply to let us know.'}};
+    en:approvedWelcomeEnglish(service)};
 }
 const escape=(text:string)=>text.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!));
 export function renderWelcome(copy:MailCopy,service:MailService,locale:'es'|'en',name:string){
   // Plain text only. Replace once so a customer's name cannot inject tokens or markup.
-  const fill=(text:string)=>text.replace(/\{(nombre|servicio)\}/g,(_,key)=>key==='nombre'?name:mailNames[service]);
+  const firstName=name.trim().split(/\s+/)[0]||'';
+  const fill=(text:string)=>text.replace(/\{(nombre|first_name|servicio)\}/g,(_,key)=>key==='nombre'?name:key==='first_name'?firstName:mailNames[service]);
   const subject=fill(copy.subject).replace(/[\r\n]+/g,' ').slice(0,250);
   const body=fill(copy.body),signature=fill(copy.signature),footer=fill(copy.footer);
   const lines=(text:string)=>escape(text).replace(/\n/g,'<br>');
