@@ -171,7 +171,15 @@ test('service welcome templates and delivery lifecycle (emulated, no real emails
    assert.equal((await req('admin/mail/shop',payload,admin,'PATCH','https://evil.example')).status,403);
    assert.equal((await req('admin/mail/shop',{...payload,to:'other@example.com'},admin,'PATCH')).status,400);
    assert.equal((await req('admin/mail/test',{service:'shop',locale:'en',template:payload.template,to:'other@example.com'},admin)).status,400);
-   assert.equal((await req('admin/mail/test',{service:'shop',locale:'en',template:payload.template},admin)).status,503);
+   const testPayload={service:'shop',locale:'en',template:payload.template,recipient:'another@example.com'};
+   assert.equal((await req('admin/mail/test',testPayload)).status,401);
+   assert.equal((await req('admin/mail/test',testPayload,visitor)).status,403);
+   assert.equal((await req('admin/mail/test',testPayload,admin,'POST','https://evil.example')).status,403);
+   assert.equal((await req('admin/mail/test',{service:'shop',locale:'en',template:payload.template},admin)).status,400);
+   for(const recipient of ['', 'not-email','one@example.com,two@example.com','one@example.com\r\nBcc: two@example.com'])assert.equal((await req('admin/mail/test',{...testPayload,recipient},admin)).status,400);
+   for(const key of ['to','from','cc','bcc'])assert.equal((await req('admin/mail/test',{...testPayload,[key]:'extra@example.com'},admin)).status,400);
+   // Valid arbitrary recipient reaches the SMTP guard. Emulators never send real mail.
+   assert.equal((await req('admin/mail/test',testPayload,admin)).status,503);
   });
   await t.test('saves both languages per service; stale editors cannot overwrite newer changes',async()=>{
    for(const service of mailServices){const s=(await req('admin/mail',undefined,admin)).data;const template=defaultWelcome(service);template.enabled=true;template.es.body='Hola {nombre}, recibimos tu interés en {servicio}.';template.en.body='Hello {nombre}, we received your interest in {servicio}.';

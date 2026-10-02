@@ -4,7 +4,7 @@ Implementación de **Immersive Luxury** con Next.js, Firebase Authentication y F
 
 ## Actualización — correos automáticos (1 octubre 2026)
 
-El panel incluye un editor de bienvenidas para ViiLife, ViiConcierge y Shop, con versiones ES/EN, vista previa, pruebas a gerson@novaweb-agency.com e historial. El envío está desactivado por defecto y requiere SMTP y activar cada servicio. El registro directo sigue funcionando sin correo. Configuración, límites y recuperación de pendientes: [WELCOME_EMAILS.md](WELCOME_EMAILS.md).
+El panel incluye un editor de bienvenidas para ViiLife, ViiConcierge y Shop, con versiones ES/EN, vista previa, destinatario de prueba editable por el administrador e historial. El envío está desactivado por defecto y requiere SMTP y activar cada servicio. El registro directo sigue funcionando sin correo. Configuración, límites y recuperación de pendientes: [WELCOME_EMAILS.md](WELCOME_EMAILS.md).
 
 ## Actualización — registro directo (25 septiembre 2026)
 

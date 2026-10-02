@@ -3,6 +3,8 @@ import {z} from 'zod';
 export const mailServices=['viilife','viiconcierge','shop'] as const;
 export type MailService=typeof mailServices[number];
 export const mailNames:Record<MailService,string>={viilife:'ViiLife',viiconcierge:'ViiConcierge',shop:'Shop'};
+// Exactly one mailbox, never a display-name list or injected mail header.
+export const welcomeTestRecipientSchema=z.string().regex(/^[^\r\n]*$/).trim().max(254).pipe(z.email()).transform(email=>email.toLowerCase());
 const copySchema=z.object({
   subject:z.string().trim().min(1).max(160).regex(/^[^\r\n]+$/),
   body:z.string().trim().min(1).max(3000),

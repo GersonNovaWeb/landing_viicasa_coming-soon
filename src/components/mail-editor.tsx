@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {api} from '@/lib/client';
 import {useLanguage} from './language';
-import {mailServices,mailNames,renderWelcome,type MailService,type WelcomeTemplate,type MailCopy} from '@/lib/welcome-mail';
+import {mailServices,mailNames,renderWelcome,welcomeTestRecipientSchema,type MailService,type WelcomeTemplate,type MailCopy} from '@/lib/welcome-mail';
 
 type Settings={templates:Record<MailService,{template:WelcomeTemplate;revision:number}>;smtp:{ready:boolean;dailyLimit:number};testRecipient:string};
 type Log={id:string;email:string;service:MailService;locale:string;state:string;created_at:string};
@@ -10,9 +10,10 @@ export function MailEditor({onDirtyChange}:{onDirtyChange:(dirty:boolean)=>void}
   const{locale,t}=useLanguage();const tr=(es:string,en:string)=>locale==='en'?en:es;
   const[settings,setSettings]=useState<Settings|null>(null),[service,setService]=useState<MailService>('viilife'),[language,setLanguage]=useState<'es'|'en'>('en');
   const[draft,setDraft]=useState<WelcomeTemplate|null>(null),[logs,setLogs]=useState<Log[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+  const[testRecipient,setTestRecipient]=useState('');
   const dirty=!!(settings&&draft&&JSON.stringify(draft)!==JSON.stringify(settings.templates[service].template));
   useEffect(()=>{onDirtyChange(dirty);return()=>onDirtyChange(false);},[dirty,onDirtyChange]);
-  useEffect(()=>{let active=true;Promise.all([api<Settings>('admin/mail'),api<{rows:Log[]}>('admin/mail/log')]).then(([s,l])=>{if(active){setSettings(s);setDraft(s.templates.viilife.template);setLogs(l.rows);}}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
+  useEffect(()=>{let active=true;Promise.all([api<Settings>('admin/mail'),api<{rows:Log[]}>('admin/mail/log')]).then(([s,l])=>{if(active){setSettings(s);setDraft(s.templates.viilife.template);setLogs(l.rows);setTestRecipient(s.testRecipient);}}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
   useEffect(()=>{if(!dirty)return;const guard=(e:BeforeUnloadEvent)=>{e.preventDefault();};window.addEventListener('beforeunload',guard);return()=>window.removeEventListener('beforeunload',guard);},[dirty]);
   function changeService(next:MailService){if(!settings||busy)return;if(dirty&&!window.confirm(tr('¿Descartar los cambios sin guardar?','Discard unsaved changes?')))return;setService(next);setDraft(settings.templates[next].template);setNotice('');setError('');}
   async function action(kind:'save'|'test'){
@@ -22,7 +23,13 @@ export function MailEditor({onDirtyChange}:{onDirtyChange:(dirty:boolean)=>void}
         const result=await api<{revision:number}>(`admin/mail/${service}`,{template:draft,revision:settings.templates[service].revision},'PATCH');
         setSettings({...settings,templates:{...settings.templates,[service]:{template:draft,revision:result.revision}}});
         setNotice(tr('Guardado. Se aplicará a los próximos registros; no envía correos a registros anteriores.','Saved. Applies to future registrations; no email is sent to earlier contacts.'));
-      }else{await api('admin/mail/test',{service,locale:language,template:draft});setNotice(tr('SMTP aceptó la prueba. Revisa tu bandeja y spam; no se modificó la plantilla guardada.','SMTP accepted the test. Check your inbox and spam; the saved template was not changed.'));}
+      }else{
+        const parsed=welcomeTestRecipientSchema.safeParse(testRecipient);
+        if(!parsed.success){setError(tr('Escribe un solo correo válido para la prueba.','Enter one valid email address for the test.'));return;}
+        const result=await api<{recipient:string}>('admin/mail/test',{service,locale:language,template:draft,recipient:parsed.data});
+        setTestRecipient(result.recipient);
+        setNotice(tr(`SMTP aceptó la prueba para ${result.recipient}. Revisa la bandeja y spam; no se modificó la plantilla guardada.`,`SMTP accepted the test for ${result.recipient}. Check the inbox and spam; the saved template was not changed.`));
+      }
     }catch(e){setError(e instanceof Error?e.message:'Error');}finally{setBusy(false);}
   }
   async function refresh(){setBusy(true);setError('');try{const data=await api<{rows:Log[]}>('admin/mail/log');setLogs(data.rows);}catch(e){setError(e instanceof Error?e.message:'Error');}finally{setBusy(false);}}
@@ -52,11 +59,16 @@ export function MailEditor({onDirtyChange}:{onDirtyChange:(dirty:boolean)=>void}
           <label>{tr('Nota final del mensaje','Message closing note')}<textarea value={copy.footer} maxLength={500} rows={3} onChange={e=>edit('footer',e.target.value)}/></label>
           <p className="form-note">{tr('La firma y la nota se muestran en el espacio blanco. El encabezado y el pie negro permanecen fijos, con sus textos en inglés.','The signature and note appear in the white area. The header and black footer remain fixed, with their text in English.')}</p>
         </fieldset>
-        <div className="mail-buttons"><button className="button" disabled={busy||!dirty}>{busy?tr('Procesando…','Working…'):tr('Guardar cambios','Save changes')}</button><button type="button" className="button outline-button" disabled={busy||!settings.smtp.ready} onClick={()=>void action('test')}>{tr('Enviar prueba','Send test')}</button></div>
-        <p className="form-note">{tr('La prueba usa el borrador visible y se envía únicamente a: ','The test uses the current draft and is sent only to: ')}{settings.testRecipient}</p>
+        <div className="mail-buttons"><button className="button" disabled={busy||!dirty}>{busy?tr('Procesando…','Working…'):tr('Guardar cambios','Save changes')}</button></div>
         {dirty&&<p className="form-note">{tr('Tienes cambios sin guardar.','You have unsaved changes.')}</p>}
-        {error&&<p role="alert" className="error-message">{t(error)} <button type="button" className="text-link" onClick={()=>{if(!dirty||window.confirm(tr('¿Descartar los cambios sin guardar?','Discard unsaved changes?')))window.location.reload();}}>{tr('Recargar','Reload')}</button></p>}{notice&&<p role="status" className="notice">{notice}</p>}
       </form>
+      <form className="interest-form mail-test" onSubmit={e=>{e.preventDefault();void action('test');}}>
+        <h3>{tr('Correo de prueba','Test email')}</h3>
+        <label>{tr('Enviar prueba a','Send test to')}<input type="email" name="testRecipient" value={testRecipient} onChange={e=>{setTestRecipient(e.target.value);setNotice('');}} required maxLength={254} autoComplete="email" spellCheck={false} disabled={busy} aria-describedby="mail-test-note"/></label>
+        <p id="mail-test-note" className="form-note">{tr('Escribe un solo correo. Se enviará el borrador del servicio e idioma seleccionados, sin guardar ni activar la plantilla. Este destinatario solo se usa para la prueba; no cambia los correos de los clientes.','Enter one email address. Sends the draft for the selected service and language without saving or enabling the template. This recipient is only used for the test; customer emails are not changed.')}</p>
+        <div className="mail-buttons"><button className="button outline-button" disabled={busy||!settings.smtp.ready}>{busy?tr('Procesando…','Working…'):tr('Enviar prueba','Send test')}</button></div>
+      </form>
+      {error&&<p role="alert" className="error-message">{t(error)} <button type="button" className="text-link" onClick={()=>{if(!dirty||window.confirm(tr('¿Descartar los cambios sin guardar?','Discard unsaved changes?')))window.location.reload();}}>{tr('Recargar','Reload')}</button></p>}{notice&&<p role="status" className="notice">{notice}</p>}
     </section><section className="dashboard-panel mail-preview"><h2>{tr('Vista previa','Preview')}</h2><p><strong>{preview.subject}</strong></p><iframe title={tr('Vista previa del correo','Email preview')} sandbox="" referrerPolicy="no-referrer" srcDoc={preview.html}/><p className="form-note">{tr('El encabezado de VIICASA permanece fijo. La apariencia puede variar según la aplicación de correo.','The VIICASA header stays fixed. Appearance may vary by email application.')}</p></section></div>
     <section className="dashboard-panel"><div className="detail-heading"><h2>{tr('Últimos 30 correos','Latest 30 emails')}</h2><button className="text-link" disabled={busy} onClick={()=>void refresh()}>{tr('Actualizar','Refresh')}</button></div>
       <p className="form-note">{tr('Aceptar SMTP no garantiza recepción. Si un envío tiene resultado incierto, revisa el proveedor antes de repetirlo; no lo reenviamos automáticamente. Los pendientes conservan el mensaje original.','SMTP acceptance does not guarantee delivery. Check the provider for uncertain outcomes; these are not automatically resent. Pending messages retain their original content.')}</p>

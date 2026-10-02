@@ -1,7 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-import {defaultWelcome,renderWelcome,mailServices,mailNames} from '../src/lib/welcome-mail.ts';
+import {defaultWelcome,renderWelcome,mailServices,mailNames,welcomeTestRecipientSchema} from '../src/lib/welcome-mail.ts';
 
 for(const service of mailServices)for(const locale of ['es','en']){
  test(`approved HTML frame is preserved for ${service}/${locale}`,()=>{
@@ -35,10 +34,12 @@ test('long content grows the white cell without clipping or a fixed overflowing 
  const {html}=renderWelcome({...defaultWelcome('viilife').en,body:'Long message '.repeat(200)+'END-OF-MESSAGE'},'viilife','en','Gerson');
  assert.ok(html.includes('END-OF-MESSAGE'));assert.ok(!html.includes('overflow:hidden'));assert.ok(!html.includes('width="720"'));
 });
-test('test delivery has a server-owned recipient, independent of logged-in admin',()=>{
- const server=readFileSync(new URL('../src/server/welcome-mail.ts',import.meta.url),'utf8');
- const route=readFileSync(new URL('../src/app/api/comingsoon/[...path]/route.ts',import.meta.url),'utf8');
- assert.ok(server.includes("welcomeTestRecipient='gerson@novaweb-agency.com'"));
- assert.ok(server.includes('smtpSend(welcomeTestRecipient,'));
- assert.ok(!route.includes('sendWelcomeTest(user.email'));
+test('test recipient can be a different single mailbox and is normalized',()=>{
+ assert.equal(welcomeTestRecipientSchema.parse('  Another+Test@Example.com  '),'another+test@example.com');
+ assert.equal(welcomeTestRecipientSchema.parse('gerson@novaweb-agency.com'),'gerson@novaweb-agency.com');
+});
+test('test recipient rejects missing, multiple, malformed or header-injected addresses',()=>{
+ for(const value of [undefined,null,[],['one@example.com'],'','invalid','one@example.com,two@example.com','one@example.com;two@example.com','Name <one@example.com>','one@example.com\r\nBcc: two@example.com','one@example.com\n','a'.repeat(255)+'@example.com']){
+  assert.equal(welcomeTestRecipientSchema.safeParse(value).success,false,JSON.stringify(value));
+ }
 });

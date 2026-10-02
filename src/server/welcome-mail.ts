@@ -3,10 +3,10 @@ import {z} from 'zod';
 import type {Transaction} from 'firebase-admin/firestore';
 import {firebase,configuration,AppError} from './firebase.ts';
 import {digest,timestamp} from './security.ts';
-import {mailServices,defaultWelcome,welcomeTemplateSchema,renderWelcome,type MailService,type WelcomeTemplate} from '../lib/welcome-mail.ts';
+import {mailServices,defaultWelcome,welcomeTemplateSchema,welcomeTestRecipientSchema,renderWelcome,type MailService,type WelcomeTemplate} from '../lib/welcome-mail.ts';
 import type {Registration} from './leads.ts';
 
-// Explicitly approved test address; never take a recipient from client input.
+// Initial suggestion only; authenticated administrators choose each test recipient.
 export const welcomeTestRecipient='gerson@novaweb-agency.com';
 
 export function smtpStatus(){
@@ -98,10 +98,11 @@ export async function dispatchWelcome(id:string,sender?:Sender){
   // Do not catch a database failure as an SMTP error. 'sending' remains ambiguous.
   await ref.update({state:'sent',updated_at:timestamp()});return 'sent';
 }
-export async function sendWelcomeTest(copy:Delivery){
+export async function sendWelcomeTest(recipient:string,copy:Delivery){
+  const email=welcomeTestRecipientSchema.parse(recipient);
   if(!smtpStatus().ready)throw new AppError(503,'SMTP no está configurado. El registro sigue funcionando.');
   const{db}=firebase();
   await db.runTransaction(async tx=>{const reserve=await reserveQuota(tx);if(!reserve)throw new AppError(429,'Se alcanzó el límite de envíos. Inténtalo más tarde.');reserve();});
-  try{await smtpSend(welcomeTestRecipient,{...copy,subject:`[TEST] ${copy.subject}`},db.collection('cs_mail_outbox').doc().id);}
+  try{await smtpSend(email,{...copy,subject:`[TEST] ${copy.subject}`},db.collection('cs_mail_outbox').doc().id);}
   catch{throw new AppError(503,'No se pudo confirmar el envío. Revisa SMTP antes de repetir la prueba.');}
 }

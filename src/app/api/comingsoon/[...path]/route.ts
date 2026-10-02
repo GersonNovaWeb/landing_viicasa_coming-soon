@@ -5,7 +5,7 @@ import {firebase,configuration,AppError,registrationOpen,requireRegistration} fr
 import {cookieName,identity,validateIdentity,jsonBody,requireSameOrigin,rateLimit,digest,timestamp} from '@/server/security';
 import {saveProfile,saveVerified,saveUnverified,confirmEmail,registrationSchema,statusSchema} from '@/server/leads';
 import {getWelcomeSettings,saveWelcomeTemplate,dispatchWelcome,sendWelcomeTest} from '@/server/welcome-mail';
-import {welcomeTemplateSchema,mailServices,renderWelcome} from '@/lib/welcome-mail';
+import {welcomeTemplateSchema,welcomeTestRecipientSchema,mailServices,renderWelcome} from '@/lib/welcome-mail';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 type Context={params:Promise<{path:string[]}>};
@@ -65,10 +65,10 @@ async function handle(request:Request,context:Context){try{
       return response({revision:await saveWelcomeTemplate(service,body.template,body.revision,user.uid)});
     }
     if(key==='admin/mail/test'&&method==='POST'){
-      const body=z.object({service:z.enum(mailServices),locale:z.enum(['es','en']),template:welcomeTemplateSchema}).strict().parse(await jsonBody(request,32768));
+      const body=z.object({service:z.enum(mailServices),locale:z.enum(['es','en']),template:welcomeTemplateSchema,recipient:welcomeTestRecipientSchema}).strict().parse(await jsonBody(request,32768));
       await rateLimit(`mail-test:${user.uid}`,3,10);
-      await sendWelcomeTest(renderWelcome(body.template[body.locale],body.service,body.locale,'Gerson'));
-      return response({ok:true});
+      await sendWelcomeTest(body.recipient,renderWelcome(body.template[body.locale],body.service,body.locale,body.locale==='es'?'María':'Mary'));
+      return response({ok:true,recipient:body.recipient});
     }
     if(key==='admin/summary'&&method==='GET'){
       const counts=await Promise.all(['cs_accounts','cs_contacts','cs_inquiries'].map(c=>db.collection(c).count().get()));
