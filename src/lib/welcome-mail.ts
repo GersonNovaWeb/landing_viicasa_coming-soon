@@ -53,7 +53,7 @@ export function renderWelcome(copy:MailCopy,service:MailService,locale:'es'|'en'
   const body=fill(copy.body),signature=fill(copy.signature),footer=fill(copy.footer);
   const lines=(text:string)=>escape(text).replace(/\n/g,'<br>');
   // Fixed brand frame supplied by VIICASA. Only escaped copy enters the white area.
-  // The remote logo remains at the exact user-provided URL; no tracking or attachments.
+  // First-party public asset: absolute HTTPS URL for email clients, no image-host ads.
   const html=`<!doctype html>
 <html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background-color:#ffffff;">
@@ -62,7 +62,7 @@ export function renderWelcome(copy:MailCopy,service:MailService,locale:'es'|'en'
     <tbody>
       <tr>
         <td align="center" style="background-color:#111111; padding:28px 20px 26px 20px; text-align:center;">
-          <img src="https://i.postimg.cc/rwSr9Qvj/Imagen-de-Chat-GPT-29-sept-2026-02-25-11-p-m.png" alt="VIICASA" width="145" style="display:block; width:145px; max-width:60%; height:auto; margin:0 auto; padding:0; border:0; outline:none; text-decoration:none;">
+          <img src="https://viicasa.com/images/logo-email.png" alt="VIICASA" width="145" style="display:block; width:145px; max-width:60%; height:auto; margin:0 auto; padding:0; border:0; outline:none; text-decoration:none;">
           <br>
         </td>
       </tr>

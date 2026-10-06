@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {defaultWelcome,approvedWelcomeEnglish,renderWelcome,mailServices,mailNames,welcomeTestRecipientSchema,welcomeTemplateSchema} from '../src/lib/welcome-mail.ts';
 
 for(const service of mailServices)test(`James Harper copy is editable, valid and specific to ${service}`,()=>{
@@ -30,7 +31,8 @@ for(const service of mailServices)for(const locale of ['es','en']){
   const copy={...defaultWelcome(service)[locale],body:'Hello {nombre}, welcome to {servicio}.',signature:'Team signature',footer:'Closing note'};
   const {html,text,subject}=renderWelcome(copy,service,locale,'Gerson');
   assert.ok(html.includes('max-width:720px'));
-  assert.ok(html.includes('https://i.postimg.cc/rwSr9Qvj/Imagen-de-Chat-GPT-29-sept-2026-02-25-11-p-m.png'));
+  assert.ok(html.includes('src="https://viicasa.com/images/logo-email.png"'));
+  assert.ok(!html.includes('postimg.cc'));
   assert.equal((html.match(/<img /g)||[]).length,1);
   assert.ok(html.includes('alt="VIICASA" width="145"'));
   for(const value of ['Kelowna, British Columbia, Canada','This email may contain confidential or privileged information intended exclusively for the recipient.','© 2026 VIICASA. All rights reserved.']){
@@ -48,6 +50,12 @@ for(const service of mailServices)for(const locale of ['es','en']){
   assert.ok(text.includes('Canada\nhttps://viicasa.com'));assert.ok(!text.includes('\\n'));
  });
 }
+test('email logo is included as a public PNG in the deployment',()=>{
+ const png=readFileSync(new URL('../public/images/logo-email.png',import.meta.url));
+ assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+ assert.ok(png.length>0&&png.length<300000);
+});
+
 test('untrusted content cannot alter the fixed HTML or add images/scripts',()=>{
  const injected='<img src=x onerror=alert(1)><script>alert(1)</script>';
  const {html}=renderWelcome({subject:'Hello {nombre}',body:injected,signature:injected,footer:injected},'shop','en',injected);
