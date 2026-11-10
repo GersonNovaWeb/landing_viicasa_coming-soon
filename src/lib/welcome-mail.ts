@@ -49,8 +49,11 @@ export function renderWelcome(copy:MailCopy,service:MailService,locale:'es'|'en'
   // Plain text only. Replace once so a customer's name cannot inject tokens or markup.
   const firstName=name.trim().split(/\s+/)[0]||'';
   const fill=(text:string)=>text.replace(/\{(nombre|first_name|servicio)\}/g,(_,key)=>key==='nombre'?name:key==='first_name'?firstName:mailNames[service]);
-  const subject=fill(copy.subject).replace(/[\r\n]+/g,' ').slice(0,250);
-  const body=fill(copy.body),signature=fill(copy.signature),footer=fill(copy.footer);
+  return renderBrandedMail({subject:fill(copy.subject),body:fill(copy.body),signature:fill(copy.signature),footer:fill(copy.footer)},service,locale);
+}
+export function renderBrandedMail(copy:MailCopy,service:MailService,locale:'es'|'en'){
+  const subject=copy.subject.replace(/[\r\n]+/g,' ').slice(0,250);
+  const {body,signature,footer}=copy;
   const lines=(text:string)=>escape(text).replace(/\n/g,'<br>');
   // Fixed brand frame supplied by VIICASA. Only escaped copy enters the white area.
   // First-party public asset: absolute HTTPS URL for email clients, no image-host ads.

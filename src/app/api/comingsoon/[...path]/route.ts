@@ -10,6 +10,9 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 type Context={params:Promise<{path:string[]}>};
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:{'Cache-Control':'private, no-store'}});}
+function scheduleDelivery(saved:{mailIds:string[];notificationIds:string[]}){
+  after(async()=>{for(const id of [...saved.notificationIds,...saved.mailIds]){try{await dispatchWelcome(id);}catch{console.error('Registration mail delivery needs review',{id});}}});
+}
 async function handle(request:Request,context:Context){try{
   const {path}=await context.params,key=path.join('/'),method=request.method;
   if(key==='config'&&method==='GET')return response({auth:configuration().mode!=='disabled',google:registrationOpen(),email:registrationOpen(),mode:configuration().mode});
@@ -38,11 +41,11 @@ async function handle(request:Request,context:Context){try{
     if(session){try{user=await identity(session);}catch(error){if(!(error instanceof AppError)||error.status!==401)throw error;}}
     if(user&&user.email!==data.email)throw new AppError(400,'Usa el correo de tu cuenta de Google.');
     const saved=user?await saveVerified(data,user.uid):await saveUnverified(data);
-    after(async()=>{for(const id of saved.mailIds){try{await dispatchWelcome(id);}catch{console.error('Welcome delivery needs review',{id});}}});
+    scheduleDelivery(saved);
     // Same response for first submissions and duplicates; no account enumeration.
     return response({state:'saved',message:data.kind==='inquiry'?'Recibimos tu solicitud.':'Recibimos tus datos. Gracias por tu interés en VIICASA.'});
   }
-  if(key==='confirm'&&method==='POST'){requireRegistration();const body=z.object({token:z.string().max(150)}).strict().parse(await jsonBody(request));await rateLimit('confirm-global',120);await confirmEmail(body.token);return response({ok:true});}
+  if(key==='confirm'&&method==='POST'){requireRegistration();const body=z.object({token:z.string().max(150)}).strict().parse(await jsonBody(request));await rateLimit('confirm-global',120);scheduleDelivery(await confirmEmail(body.token));return response({ok:true});}
   if(key==='preferences'&&method==='DELETE'){
     const user=await identity(jar.get(cookieName)?.value),{db}=firebase(),ref=db.collection('cs_contacts').doc(digest(user.email));
     await db.runTransaction(async tx=>{if((await tx.get(ref)).exists)tx.update(ref,{marketing:false,unsubscribed_at:timestamp()});});return response({ok:true});
@@ -52,7 +55,7 @@ async function handle(request:Request,context:Context){try{
     if(key==='admin/mail'&&method==='GET')return response(await getWelcomeSettings());
     if(key==='admin/mail/log'&&method==='GET'){
       const docs=await db.collection('cs_mail_outbox').orderBy('created_at','desc').limit(30).get();
-      return response({rows:docs.docs.map(doc=>{const d=doc.data();return {id:doc.id,email:d.email,service:d.service,locale:d.locale,state:d.state,created_at:d.created_at};})});
+      return response({rows:docs.docs.map(doc=>{const d=doc.data();return {id:doc.id,email:d.email,service:d.service,type:d.type||'welcome',locale:d.locale,state:d.state,created_at:d.created_at};})});
     }
     if(key==='admin/mail/process'&&method==='POST'){
       const {id}=z.object({id:z.string().regex(/^[a-f0-9]{64}$/)}).strict().parse(await jsonBody(request));

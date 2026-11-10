@@ -5,6 +5,7 @@ import {firebase,configuration,AppError} from './firebase.ts';
 import {digest,timestamp} from './security.ts';
 import {mailServices,defaultWelcome,welcomeTemplateSchema,welcomeTestRecipientSchema,renderWelcome,type MailService,type WelcomeTemplate} from '../lib/welcome-mail.ts';
 import type {Registration} from './leads.ts';
+import {waitlistNotificationRecipient} from '../lib/waitlist-mail.ts';
 
 // Initial suggestion only; authenticated administrators choose each test recipient.
 export const welcomeTestRecipient='gerson@novaweb-agency.com';
@@ -17,7 +18,7 @@ export function smtpStatus(){
 export async function getWelcomeSettings(){
   const{db}=firebase();
   const docs=await db.getAll(...mailServices.map(s=>db.collection('cs_mail_templates').doc(s)));
-  return {templates:Object.fromEntries(docs.map((doc,i)=>[mailServices[i],{template:welcomeTemplateSchema.safeParse(doc.data()?.template).data??defaultWelcome(mailServices[i]),revision:doc.data()?.revision||0}])),smtp:smtpStatus(),testRecipient:welcomeTestRecipient};
+  return {templates:Object.fromEntries(docs.map((doc,i)=>[mailServices[i],{template:welcomeTemplateSchema.safeParse(doc.data()?.template).data??defaultWelcome(mailServices[i]),revision:doc.data()?.revision||0}])),smtp:smtpStatus(),testRecipient:welcomeTestRecipient,waitlistRecipient:waitlistNotificationRecipient};
 }
 export async function saveWelcomeTemplate(service:MailService,template:WelcomeTemplate,revision:number,actor:string){
   const{db}=firebase(),ref=db.collection('cs_mail_templates').doc(service);
@@ -80,18 +81,32 @@ export async function dispatchWelcome(id:string,sender?:Sender){
   if(sender&&configuration().mode!=='emulator')throw new Error('Test sender requires emulator');
   if(!sender&&!smtpStatus().ready)return 'unconfigured';
   const{db}=firebase(),ref=db.collection('cs_mail_outbox').doc(id);
-  const row=await db.runTransaction(async tx=>{
+  const claim=()=>db.runTransaction(async tx=>{
     const snapshot=await tx.get(ref),data=snapshot.data();
     if(!data||data.state!=='pending')return null;
     const contact=(await tx.get(db.collection('cs_contacts').doc(data.contact_id))).data();
-    const setting=(await tx.get(db.collection('cs_mail_templates').doc(data.service))).data();
+    const internal=data.type==='waitlist_notification';
+    const setting=internal?null:(await tx.get(db.collection('cs_mail_templates').doc(data.service))).data();
+    const memberships=internal?await tx.getAll(...data.services.map((service:MailService)=>db.collection('cs_waitlist').doc(digest(`${data.subscriber_email}:${service}`)))):[];
     const reserve=await reserveQuota(tx);
-    if(!contact||setting?.template?.enabled!==true||(data.kind==='waitlist'&&contact.marketing!==true)){
+    const allowed=internal?data.email===waitlistNotificationRecipient&&memberships.length>0&&memberships.every(doc=>doc.exists):setting?.template?.enabled===true&&(data.kind!=='waitlist'||contact?.marketing===true);
+    if(!contact||!allowed){
       tx.update(ref,{state:'skipped',reason:'disabled_or_removed',updated_at:timestamp()});return null;
     }
     if(!reserve)return null;
     reserve();tx.update(ref,{state:'sending',updated_at:timestamp()});return data;
   });
+  // Firestore normally retries expired transaction IDs. The emulator can return
+  // a different INVALID_ARGUMENT message for the same closed-transaction case.
+  // Restart only this pure reservation, before SMTP; never retry delivery here.
+  let row:Awaited<ReturnType<typeof claim>>=null;
+  for(let attempt=0;attempt<3;attempt++){
+    try{row=await claim();break;}
+    catch(error){
+      const closed=error instanceof Error&&'code' in error&&error.code===3&&error.message.includes('Transaction is invalid or closed.');
+      if(!closed||attempt===2)throw error;
+    }
+  }
   if(!row)return 'not_claimed';
   try{await (sender||smtpSend)(row.email,row.mail,id);}
   catch{await ref.update({state:'unknown',reason:'smtp_error_check_provider',updated_at:timestamp()});return 'unknown';}

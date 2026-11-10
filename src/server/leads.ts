@@ -6,6 +6,7 @@ import {firebase,AppError,configuration} from './firebase.ts';
 import {digest,timestamp} from './security.ts';
 import {confirmationMail} from '../lib/mail-copy.ts';
 import {planWelcome} from './welcome-mail.ts';
+import {planWaitlist} from './waitlist.ts';
 export const interestSchema=z.enum(['viilife','viiconcierge','shop']);
 export const registrationSchema=z.object({name:z.string().trim().min(2).max(120),email:z.email().max(254).transform(e=>e.toLowerCase()),locale:z.enum(['es','en']).default('es'),interests:z.array(interestSchema).min(1).max(3).transform(a=>[...new Set(a)]),phone:z.string().trim().max(30).default(''),message:z.string().trim().max(2000).default(''),kind:z.enum(['waitlist','inquiry']),privacy:z.literal(true),marketing:z.boolean(),source:z.enum(['home','viilife','viiconcierge','shop']),website:z.string().max(0).default('')}).strict().refine(v=>v.kind!=='waitlist'||v.marketing,{message:'Autoriza las novedades para unirte a la lista.'});
 export type Registration=z.infer<typeof registrationSchema>;
@@ -25,13 +26,14 @@ export async function saveUnverified(data:Registration){
     const previous=await tx.get(ref);
     const inquiry=data.kind==='inquiry'?db.collection('cs_inquiries').doc(digest(`${key}:${data.source}:${data.message}`)):null;
     const old=inquiry?await tx.get(inquiry):null;
-    const welcome=await planWelcome(tx,data,!previous.exists||!!(inquiry&&!old?.exists));
+    const writeWaitlist=await planWaitlist(tx,data,consentVersion);
+    const welcome=await planWelcome(tx,data,writeWaitlist.hasNew||!previous.exists||!!(inquiry&&!old?.exists));
     const created=timestamp();
     if(!previous.exists)tx.create(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone,uid:null,interests:data.interests,verified:false,
       marketing:data.marketing,marketing_consent_at:data.marketing?created:null,privacy_version:consentVersion,created_at:created,updated_at:created,status:'new',notes:'',source:data.source});
     if(inquiry&&!old?.exists)tx.create(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,
       verified:false,created_at:created,updated_at:created,status:'new',notes:'',privacy_version:consentVersion});
-    return {key,mailIds:welcome()};
+    const notificationIds=writeWaitlist.write();return {key,mailIds:welcome(),notificationIds};
   });
 }
 async function persistVerified(tx:Transaction,data:Registration,uid:string|null,sendWelcome=false){
@@ -40,14 +42,15 @@ async function persistVerified(tx:Transaction,data:Registration,uid:string|null,
     const trusted=previous?.verified===true?previous:undefined;
     const inquiry=data.kind==='inquiry'?db.collection('cs_inquiries').doc(digest(`${key}:${data.source}:${data.message}`)):null;
     const old=inquiry?(await tx.get(inquiry)).data():null;
-    const welcome=await planWelcome(tx,data,sendWelcome);
+    const writeWaitlist=await planWaitlist(tx,data,consentVersion);
+    const welcome=await planWelcome(tx,data,sendWelcome||writeWaitlist.hasNew);
     const interests=[...new Set([...(trusted?.interests||[]),...data.interests])];
     tx.set(ref,{email:data.email,name:data.name,locale:data.locale,phone:data.phone||trusted?.phone||'',uid:uid||trusted?.uid||null,interests,verified:true,marketing:trusted?.marketing===true||data.marketing,
       marketing_consent_at:data.marketing?created:trusted?.marketing_consent_at||null,privacy_version:consentVersion,created_at:previous?.created_at||created,updated_at:created,status:previous?.status||'new',notes:previous?.notes||'',source:trusted?.source||data.source});
     if(inquiry){
       tx.set(inquiry,{contact_id:key,email:data.email,name:data.name,phone:data.phone,service:data.source,interests:data.interests,message:data.message,verified:true,created_at:old?.created_at||created,updated_at:created,status:old?.status||'new',notes:old?.notes||'',privacy_version:consentVersion});
     }
-    return {key,mailIds:welcome()};
+    const notificationIds=writeWaitlist.write();return {key,mailIds:welcome(),notificationIds};
 }
 export function mailEnabled(){return process.env.MAIL_MODE==='smtp'&&!!process.env.SMTP_HOST&&!!process.env.MAIL_FROM;}
 export async function requestEmailConfirmation(data:Registration){
@@ -66,10 +69,10 @@ export async function requestEmailConfirmation(data:Registration){
 export async function confirmEmail(value:string){
   if(!/^[a-f0-9]{64}\.[A-Za-z0-9_-]{43}$/.test(value))throw new AppError(400,'Enlace inválido.');
   const[id,secret]=value.split('.'),{db}=firebase(),ref=db.collection('cs_pending').doc(id);
-  await db.runTransaction(async tx=>{
-    const row=(await tx.get(ref)).data();if(!row||row.token_hash!==digest(secret)||row.expires_at<timestamp())throw new AppError(400,'El enlace venció. Solicita uno nuevo.');if(row.confirmed_at)return;
+  return db.runTransaction(async tx=>{
+    const row=(await tx.get(ref)).data();if(!row||row.token_hash!==digest(secret)||row.expires_at<timestamp())throw new AppError(400,'El enlace venció. Solicita uno nuevo.');if(row.confirmed_at)return {mailIds:[],notificationIds:[]};
     const fields=['name','email','locale','interests','phone','message','kind','privacy','marketing','source','website'];
     const data=registrationSchema.parse(Object.fromEntries(fields.map(k=>[k,row[k]])));
-    await persistVerified(tx,data,null);tx.update(ref,{confirmed_at:timestamp()});
+    const saved=await persistVerified(tx,data,null);tx.update(ref,{confirmed_at:timestamp()});return saved;
   });
 }
